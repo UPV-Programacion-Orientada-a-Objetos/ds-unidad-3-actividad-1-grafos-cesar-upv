@@ -1,0 +1,21 @@
+# entornos virtuales y caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# artefactos de compilacion
+build/
+dist/
+*.so
+*.dll
+
+# salidas temporales
+*.log
+*.tmp
+*.html
+neuronet_subgraph.html
+
+# configuraciones locales
+.idea/
+.vscode/
