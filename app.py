@@ -2,7 +2,7 @@ import math
 import random
 import sys
 import webbrowser
-from collections import deque
+from collections import deque, defaultdict
 
 try:
     from fa2 import ForceAtlas2
@@ -107,14 +107,24 @@ class GraphWindow(QtWidgets.QDialog):
         ys = [pos[1] for pos in layout_positions.values()]
         min_x, max_x = min(xs), max(xs)
         min_y, max_y = min(ys), max(ys)
-        width = max(max_x - min_x, 1e-3)
-        height = max(max_y - min_y, 1e-3)
-        scale = 520.0 / max(width, height)
-        center_x = (max_x + min_x) / 2
-        center_y = (max_y + min_y) / 2
+        span_x = max(max_x - min_x, 1e-3)
+        span_y = max(max_y - min_y, 1e-3)
+        target_w = 1600.0
+        target_h = 1000.0
+        scale_factor = min(1.0, min(target_w / span_x, target_h / span_y))
+        margin_x = 90.0
+        margin_y = 60.0
+        adjusted_w = span_x * scale_factor
+        adjusted_h = span_y * scale_factor
+        extra_bottom = (adjusted_h * 0.4) + 240.0
+        scene_width = adjusted_w + (margin_x * 2)
+        scene_height = adjusted_h + margin_y + extra_bottom
+        self.scene.setSceneRect(0.0, 0.0, scene_width, scene_height)
         positions = {}
         for node, (x, y) in layout_positions.items():
-            positions[node] = QtCore.QPointF((x - center_x) * scale, (y - center_y) * scale)
+            adj_x = ((x - min_x) * scale_factor) + margin_x
+            adj_y = ((y - min_y) * scale_factor) + margin_y
+            positions[node] = QtCore.QPointF(adj_x, adj_y)
         max_degree = max((deg for _, deg in graph.degree()), default=1)
         pen_edge = QtGui.QPen(QtGui.QColor("#6c63ff"))
         pen_edge.setWidthF(0.9)
@@ -156,7 +166,6 @@ class GraphWindow(QtWidgets.QDialog):
             f"Nodos mostrados: {graph.number_of_nodes()} | Aristas: {graph.number_of_edges()} | Origen BFS: {origen}"
         )
         self._fit_view()
-        self.view.scale(0.65, 0.65)
         self.setModal(False)
         self.show()
         self.raise_()
@@ -512,7 +521,9 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
 
     def _compute_layout(self, graph: nx.DiGraph, origin: int):
         layout = {}
-        if ForceAtlas2 is not None:
+        if origin in graph:
+            layout = self._tree_layout(graph, origin)
+        if not layout and ForceAtlas2 is not None:
             layout = self._forceatlas_layout(graph)
         if not layout and origin in graph:
             layout = self._radial_layout(graph, origin)
@@ -540,6 +551,153 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             return forceatlas.forceatlas2_networkx_layout(undirected, pos=None, iterations=200)
         except Exception:  # pragma: no cover
             return {}
+
+    def _tree_layout(self, graph: nx.DiGraph, origin: int):
+        if origin not in graph:
+            return {}
+        children, depth, _visited = self._bfs_tree(graph, origin)
+        if not depth:
+            return {}
+        node_count = graph.number_of_nodes()
+        if node_count <= 180:
+            layout = self._tidy_tree_positions(children, depth, origin)
+        else:
+            layout = self._layered_force_positions(graph, depth)
+        missing = [node for node in graph.nodes() if node not in layout]
+        if missing:
+            layout.update(self._grid_fallback_positions(missing, depth))
+        return layout
+
+ 
+    def _bfs_tree(self, graph: nx.DiGraph, origin: int):
+        children: defaultdict[int, list[int]] = defaultdict(list)
+        depth: dict[int, int] = {}
+        visited: set[int] = set()
+        if origin not in graph:
+            return children, depth, visited
+        undirected = graph.to_undirected()
+        queue = deque([origin])
+        depth[origin] = 0
+        visited.add(origin)
+        while queue:
+            node = queue.popleft()
+            vecinos_dir = list(graph.successors(node))
+            vecinos = vecinos_dir if vecinos_dir else list(undirected.neighbors(node))
+            for vecino in sorted(vecinos):
+                if vecino in visited:
+                    continue
+                visited.add(vecino)
+                depth[vecino] = depth[node] + 1
+                children[node].append(vecino)
+                queue.append(vecino)
+        return children, depth, visited
+
+    def _tidy_tree_positions(
+        self,
+        children: defaultdict[int, list[int]],
+        depth: dict[int, int],
+        origin: int,
+    ) -> dict[int, tuple[float, float]]:
+        if origin not in depth:
+            return {}
+        subtree: dict[int, float] = {}
+
+        def _size(node: int) -> float:
+            hijos = children.get(node, [])
+            if not hijos:
+                subtree[node] = 1.0
+                return 1.0
+            total = 0.0
+            for hijo in hijos:
+                total += _size(hijo)
+            subtree[node] = max(total, 1.0)
+            return subtree[node]
+
+        def _assign(node: int, start: float, positions: dict[int, float]):
+            hijos = children.get(node, [])
+            if not hijos:
+                positions[node] = start + 0.5
+                return positions[node]
+            cursor = start
+            separacion = 1.0 + min(1.6, max(0, len(hijos) - 1) * 0.14)
+            for hijo in hijos:
+                _assign(hijo, cursor, positions)
+                cursor += subtree[hijo] * separacion
+            primero = hijos[0]
+            ultimo = hijos[-1]
+            positions[node] = (positions[primero] + positions[ultimo]) / 2.0
+            return positions[node]
+
+        _size(origin)
+        x_positions: dict[int, float] = {}
+        _assign(origin, 0.0, x_positions)
+        min_x = min(x_positions.values(), default=0.0)
+        max_depth = max(depth.values(), default=0)
+        level_counts: defaultdict[int, int] = defaultdict(int)
+        for node, level in depth.items():
+            level_counts[level] += 1
+        max_level_width = max(level_counts.values(), default=1)
+        spacing_x = 185.0 + min(520.0, max(0, max_level_width - 1) * 18.0)
+        spacing_y = 210.0 if max_depth < 6 else 185.0
+        layout: dict[int, tuple[float, float]] = {}
+        for node, x_val in x_positions.items():
+            centered_x = (x_val - min_x) * spacing_x
+            layout[node] = (centered_x, depth[node] * spacing_y)
+        min_y = min((pos[1] for pos in layout.values()), default=0.0)
+        if min_y != 0.0:
+            for node, (x, y) in layout.items():
+                layout[node] = (x, y - min_y)
+        return layout
+
+    def _layered_force_positions(self, graph: nx.DiGraph, depth: dict[int, int]):
+        undirected = graph.to_undirected()
+        node_count = max(1, graph.number_of_nodes())
+        k = max(0.25, 1.5 / math.sqrt(node_count))
+        pos = nx.spring_layout(undirected, seed=32, k=k, iterations=80, scale=1.0)
+        xs = [coord[0] for coord in pos.values()]
+        ys = [coord[1] for coord in pos.values()]
+        min_x, max_x = min(xs, default=0.0), max(xs, default=1.0)
+        min_y, max_y = min(ys, default=0.0), max(ys, default=1.0)
+        span_x = max(max_x - min_x, 1e-4)
+        span_y = max(max_y - min_y, 1e-4)
+        horizontal_scale = 1000.0 + (math.log10(node_count + 10) * 420.0)
+        max_depth = max(depth.values(), default=0)
+        spacing_y = max(150.0, 220.0 - (math.log10(node_count + 3) * 20.0))
+        jitter_scale = spacing_y * 0.55
+        default_depth = max_depth + 1
+        layout: dict[int, tuple[float, float]] = {}
+        for node in graph.nodes():
+            base = pos.get(node, (0.0, 0.0))
+            normalized_x = ((base[0] - min_x) / span_x) - 0.5
+            normalized_y = ((base[1] - min_y) / span_y) - 0.5
+            depth_level = depth.get(node, default_depth)
+            x = normalized_x * horizontal_scale
+            y = (depth_level * spacing_y) + (normalized_y * jitter_scale)
+            layout[node] = (x, y)
+        min_y_layout = min((coord[1] for coord in layout.values()), default=0.0)
+        for node, (x, y) in layout.items():
+            adjusted_y = y - min_y_layout
+            if node in depth and depth[node] == 0:
+                adjusted_y = max(0.0, adjusted_y - spacing_y * 0.35)
+            layout[node] = (x, adjusted_y)
+        return layout
+
+    def _grid_fallback_positions(self, nodes: list[int], depth: dict[int, int]):
+        if not nodes:
+            return {}
+        max_depth = max(depth.values(), default=0)
+        start_level = max_depth + 1
+        columns = max(3, int(math.sqrt(len(nodes))))
+        spacing_x = 170.0
+        spacing_y = 190.0
+        layout: dict[int, tuple[float, float]] = {}
+        for idx, node in enumerate(sorted(nodes)):
+            col = idx % columns
+            row = idx // columns
+            offset_x = (col - (columns / 2)) * spacing_x * 1.1
+            y = (start_level + row) * spacing_y
+            layout[node] = (offset_x, y)
+        return layout
 
     def _radial_layout(self, graph: nx.DiGraph, origin: int):
         positions = {}
