@@ -58,3 +58,11 @@ cdef class NeuroNetCore:
         nodos_py = [resultado.nodos[i] for i in range(nodos)]
         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
         return {"nodos": nodos_py, "aristas": aristas_py}
+
+    def dfs(self, origen: int, profundidad: int):
+        cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+        cdef int nodos = resultado.nodos.size()
+        cdef int aristas = resultado.aristas_origen.size()
+        nodos_py = [resultado.nodos[i] for i in range(nodos)]
+        aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
+        return {"nodos": nodos_py, "aristas": aristas_py}

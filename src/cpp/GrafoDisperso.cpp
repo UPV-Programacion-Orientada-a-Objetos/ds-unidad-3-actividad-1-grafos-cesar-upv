@@ -21,32 +21,34 @@ bool GrafoDisperso::cargarDatos(const std::string &ruta) {
     std::cout << "[C++ Core] Inicializando GrafoDisperso..." << std::endl;
     auto inicio = std::chrono::high_resolution_clock::now();
 
-    std::ifstream archivo(ruta);
-    if (!archivo.is_open()) {
+    FILE* archivo = fopen(ruta.c_str(), "r");
+    if (!archivo) {
         std::cerr << "[C++ Core] Error abriendo archivo: " << ruta << std::endl;
         return false;
     }
 
     std::vector<std::pair<int, int>> aristas;
-    aristas.reserve(100000);
+    // Reserva optimista para evitar reallocs frecuentes (ej. 5 millones de aristas)
+    aristas.reserve(5000000);
 
     int maxId = -1;
-    std::string linea;
+    char buffer[1024];
     size_t lineasLeidas = 0;
     size_t lineasValidas = 0;
-    const size_t avisoCada = 1'000'000;
+    const size_t avisoCada = 1000000;
 
-    while (std::getline(archivo, linea)) {
+    int origen, destino;
+    while (fgets(buffer, sizeof(buffer), archivo)) {
         ++lineasLeidas;
-        if (linea.empty() || linea[0] == '#') {
+        if (buffer[0] == '#' || buffer[0] == '\n') {
             continue;
         }
-        std::istringstream parser(linea);
-        int origen = 0;
-        int destino = 0;
-        if (!(parser >> origen >> destino)) {
+        
+        // Parsing manual basico es mas rapido que stringstream
+        if (sscanf(buffer, "%d %d", &origen, &destino) != 2) {
             continue;
         }
+
         if (origen < 0 || destino < 0) {
             continue;
         }
@@ -56,8 +58,10 @@ bool GrafoDisperso::cargarDatos(const std::string &ruta) {
             std::cout << "[C++ Core] Progreso de lectura | lineas validas: " << lineasValidas
                       << " | aristas acumuladas: " << aristas.size() << std::endl;
         }
-        maxId = std::max(maxId, std::max(origen, destino));
+        if (origen > maxId) maxId = origen;
+        if (destino > maxId) maxId = destino;
     }
+    fclose(archivo);
 
     if (maxId < 0) {
         std::cerr << "[C++ Core] Archivo vacio o sin datos validos" << std::endl;
@@ -70,6 +74,7 @@ bool GrafoDisperso::cargarDatos(const std::string &ruta) {
     totalNodos = static_cast<size_t>(maxId) + 1;
     totalAristas = aristas.size();
 
+    // Optimizacion: Usar vector::assign y acceso directo para conteo de grados
     grados.assign(totalNodos, 0);
     for (const auto &edge : aristas) {
         grados[edge.first]++;
@@ -77,6 +82,7 @@ bool GrafoDisperso::cargarDatos(const std::string &ruta) {
     std::cout << "[C++ Core] Paso 1/3 completado: grados calculados" << std::endl;
 
     rowPtr.assign(totalNodos + 1, 0);
+    // Calculo de prefijos acumulados
     for (size_t i = 0; i < totalNodos; ++i) {
         rowPtr[i + 1] = rowPtr[i] + static_cast<size_t>(grados[i]);
     }
@@ -84,10 +90,14 @@ bool GrafoDisperso::cargarDatos(const std::string &ruta) {
 
     colIndices.assign(totalAristas, 0);
     std::vector<size_t> offset(totalNodos, 0);
+    
+    // Llenado de CSR
     for (const auto &edge : aristas) {
-        size_t posicion = rowPtr[edge.first] + offset[edge.first];
-        colIndices[posicion] = edge.second;
-        offset[edge.first]++;
+        int u = edge.first;
+        int v = edge.second;
+        size_t posicion = rowPtr[u] + offset[u];
+        colIndices[posicion] = v;
+        offset[u]++;
     }
     std::cout << "[C++ Core] Paso 3/3 completado: columnas cargadas" << std::endl;
 
@@ -214,5 +224,135 @@ double GrafoDisperso::obtenerUltimoTiempoCargaMs() const { return ultimoTiempoCa
 GrafoBase *crearGrafoDisperso() { return new GrafoDisperso(); }
 
 void liberarGrafo(GrafoBase *grafo) { delete grafo; }
+
+// dfs con profundidad limitada (iterativo para evitar stack overflow)
+BFSResultado GrafoDisperso::dfsConDetalle(int origen, size_t profundidadMaxima) const {
+    BFSResultado resultado;
+
+    if (totalNodos == 0 || origen < 0 || static_cast<size_t>(origen) >= totalNodos) {
+        return resultado;
+    }
+
+    std::vector<char> visitado(totalNodos, 0);
+    // Stack almacena: {nodo, nivel}
+    std::vector<std::pair<int, size_t>> stack;
+    stack.reserve(1000);
+
+    stack.emplace_back(origen, 0);
+    
+    // DFS iterativo no marca visitado al empujar, sino al procesar, 
+    // pero para evitar ciclos y duplicados en stack, podemos marcar al empujar 
+    // o usar un set. Para eficiencia en grafos densos, mejor marcar al visitar 
+    // pero cuidando no re-empujar demasiado.
+    // Estrategia comun: marcar al sacar del stack (visitado real) 
+    // O marcar al meter (para evitar meterlo multiples veces).
+    // En DFS estricto se marca al entrar.
+    
+    // Vamos a usar la estrategia de marcar al procesar para permitir caminos alternativos 
+    // si fuera necesario, pero aqui solo queremos el arbol de expansion.
+    // Asi que marcaremos al sacar para asegurar el orden DFS correcto.
+    
+    // Revision: Para evitar que el stack crezca exponencialmente en grafos densos,
+    // es mejor marcar al ver. Pero eso es mas parecido a BFS.
+    // DFS puro: marcar al visitar.
+    
+    std::cout << "[C++ Core] DFS nativo | origen: " << origen << " | profundidad solicitada: "
+              << profundidadMaxima << std::endl;
+
+    size_t nivelMaxExplorado = 0;
+
+    while (!stack.empty()) {
+        auto [nodo, nivel] = stack.back();
+        stack.pop_back();
+
+        if (visitado[nodo]) {
+            continue;
+        }
+        visitado[nodo] = 1;
+        resultado.nodos.push_back(nodo);
+        
+        nivelMaxExplorado = std::max(nivelMaxExplorado, nivel);
+
+        if (nivel >= profundidadMaxima) {
+            continue;
+        }
+
+        size_t inicio = rowPtr[nodo];
+        size_t fin = rowPtr[nodo + 1];
+        
+        // Para simular orden recursivo (izquierda a derecha), empujamos en orden inverso
+        // O empujamos normal y procesamos derecha a izquierda.
+        // El orden de vecinos en CSR es arbitrario (segun input).
+        // Empujamos normal:
+        for (size_t i = inicio; i < fin; ++i) {
+            int vecino = colIndices[i];
+            if (!visitado[vecino]) {
+                // Solo agregamos arista si el vecino no ha sido visitado aun
+                // (Arista de arbol). Si quisieramos back-edges, seria diferente.
+                // Nota: En DFS iterativo, la arista se confirma cuando visitamos al hijo.
+                // Pero aqui necesitamos guardar la arista para visualizar.
+                // Si lo agregamos aqui, podriamos tener aristas a nodos que luego no visitamos
+                // si ya fueron visitados por otro camino en el stack.
+                // Correccion: Guardar padre en stack para reconstruir arista al visitar.
+            }
+        }
+        
+        // Re-implementacion con padre en stack para capturar aristas correctamente
+    }
+    
+    // Limpiamos y reiniciamos con logica corregida
+    resultado.nodos.clear();
+    std::fill(visitado.begin(), visitado.end(), 0);
+    stack.clear();
+    
+    // Stack: {nodo, nivel, padre}
+    // Usamos un vector de tuplas o 3 vectores paralelos. O struct simple.
+    struct Frame {
+        int nodo;
+        size_t nivel;
+        int padre;
+    };
+    std::vector<Frame> pila;
+    pila.reserve(1000);
+    
+    pila.push_back({origen, 0, -1});
+    
+    while(!pila.empty()){
+        Frame f = pila.back();
+        pila.pop_back();
+        
+        if(visitado[f.nodo]) continue;
+        
+        visitado[f.nodo] = 1;
+        resultado.nodos.push_back(f.nodo);
+        if(f.padre != -1){
+            resultado.aristas_origen.push_back(f.padre);
+            resultado.aristas_destino.push_back(f.nodo);
+        }
+        
+        nivelMaxExplorado = std::max(nivelMaxExplorado, f.nivel);
+        
+        if(f.nivel >= profundidadMaxima) continue;
+        
+        size_t inicio = rowPtr[f.nodo];
+        size_t fin = rowPtr[f.nodo + 1];
+        
+        // Empujamos en reverso para visitar en orden de indice (opcional, estetico)
+        // CSR tiene vecinos contiguos.
+        if (fin > inicio) {
+            for (size_t i = fin; i > inicio; --i) {
+                int vecino = colIndices[i - 1];
+                if (!visitado[vecino]) {
+                    pila.push_back({vecino, f.nivel + 1, f.nodo});
+                }
+            }
+        }
+    }
+
+    std::cout << "[C++ Core] DFS finalizado | niveles explorados: " << (nivelMaxExplorado + 1)
+              << " | nodos visitados: " << resultado.nodos.size()
+              << " | aristas en subgrafo: " << resultado.aristas_origen.size() << std::endl;
+    return resultado;
+}
 
 } // namespace neuronet

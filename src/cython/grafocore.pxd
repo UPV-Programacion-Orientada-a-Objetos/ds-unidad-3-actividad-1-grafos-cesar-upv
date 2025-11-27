@@ -15,6 +15,7 @@ cdef extern from "GrafoBase.hpp" namespace "neuronet":
         int obtenerNodoMayorGrado() const
         vector[int] obtenerVecinos(int nodo) const
         BFSResultado bfsConDetalle(int origen, size_t profundidadMaxima) const
+        BFSResultado dfsConDetalle(int origen, size_t profundidadMaxima) const
         double estimarMemoriaMB() const
         double obtenerUltimoTiempoCargaMs() const
 

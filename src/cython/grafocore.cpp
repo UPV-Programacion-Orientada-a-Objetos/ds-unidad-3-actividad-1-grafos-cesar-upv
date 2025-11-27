@@ -2398,8 +2398,9 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_12vecinos(struct __pyx_
 static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_14memoria_mb(struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_16tiempo_carga_ms(struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_18bfs(struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, PyObject *__pyx_v_origen, PyObject *__pyx_v_profundidad); /* proto */
-static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_20dfs(struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, PyObject *__pyx_v_origen, PyObject *__pyx_v_profundidad); /* proto */
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_tp_new_13neuronet_core_NeuroNetCore(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
@@ -2426,8 +2427,8 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
-  PyObject *__pyx_codeobj_tab[10];
-  PyObject *__pyx_string_tab[82];
+  PyObject *__pyx_codeobj_tab[11];
+  PyObject *__pyx_string_tab[84];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
 PyTypeObject *__pyx_CommonTypesMetaclassType;
@@ -2485,71 +2486,73 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_NeuroNetCore___setstate_cython __pyx_string_tab[14]
 #define __pyx_n_u_NeuroNetCore_bfs __pyx_string_tab[15]
 #define __pyx_n_u_NeuroNetCore_cargar_archivo __pyx_string_tab[16]
-#define __pyx_n_u_NeuroNetCore_memoria_mb __pyx_string_tab[17]
-#define __pyx_n_u_NeuroNetCore_nodo_mayor_grado __pyx_string_tab[18]
-#define __pyx_n_u_NeuroNetCore_tiempo_carga_ms __pyx_string_tab[19]
-#define __pyx_n_u_NeuroNetCore_total_aristas __pyx_string_tab[20]
-#define __pyx_n_u_NeuroNetCore_total_nodos __pyx_string_tab[21]
-#define __pyx_n_u_NeuroNetCore_vecinos __pyx_string_tab[22]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[23]
-#define __pyx_n_u_aristas __pyx_string_tab[24]
-#define __pyx_n_u_aristas_py __pyx_string_tab[25]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[26]
-#define __pyx_n_u_bfs __pyx_string_tab[27]
-#define __pyx_n_u_cargar_archivo __pyx_string_tab[28]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[29]
-#define __pyx_n_u_datos __pyx_string_tab[30]
-#define __pyx_n_u_encoded __pyx_string_tab[31]
-#define __pyx_n_u_float __pyx_string_tab[32]
-#define __pyx_n_u_func __pyx_string_tab[33]
-#define __pyx_n_u_getstate __pyx_string_tab[34]
-#define __pyx_n_u_i __pyx_string_tab[35]
-#define __pyx_n_u_int __pyx_string_tab[36]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[37]
-#define __pyx_n_u_items __pyx_string_tab[38]
-#define __pyx_n_u_main __pyx_string_tab[39]
-#define __pyx_n_u_memoria_mb __pyx_string_tab[40]
-#define __pyx_n_u_module __pyx_string_tab[41]
-#define __pyx_n_u_name __pyx_string_tab[42]
-#define __pyx_n_u_neuronet_core __pyx_string_tab[43]
-#define __pyx_n_u_nodo __pyx_string_tab[44]
-#define __pyx_n_u_nodo_mayor_grado __pyx_string_tab[45]
-#define __pyx_n_u_nodos __pyx_string_tab[46]
-#define __pyx_n_u_nodos_py __pyx_string_tab[47]
-#define __pyx_n_u_ok __pyx_string_tab[48]
-#define __pyx_n_u_origen __pyx_string_tab[49]
-#define __pyx_n_u_path __pyx_string_tab[50]
-#define __pyx_n_u_pop __pyx_string_tab[51]
-#define __pyx_n_u_profundidad __pyx_string_tab[52]
-#define __pyx_n_u_pyx_state __pyx_string_tab[53]
-#define __pyx_n_u_qualname __pyx_string_tab[54]
-#define __pyx_n_u_reduce __pyx_string_tab[55]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[56]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[57]
-#define __pyx_n_u_resultado __pyx_string_tab[58]
-#define __pyx_n_u_return __pyx_string_tab[59]
-#define __pyx_n_u_ruta __pyx_string_tab[60]
-#define __pyx_n_u_self __pyx_string_tab[61]
-#define __pyx_n_u_set_name __pyx_string_tab[62]
-#define __pyx_n_u_setdefault __pyx_string_tab[63]
-#define __pyx_n_u_setstate __pyx_string_tab[64]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[65]
-#define __pyx_n_u_str __pyx_string_tab[66]
-#define __pyx_n_u_test __pyx_string_tab[67]
-#define __pyx_n_u_tiempo_carga_ms __pyx_string_tab[68]
-#define __pyx_n_u_total_aristas __pyx_string_tab[69]
-#define __pyx_n_u_total_nodos __pyx_string_tab[70]
-#define __pyx_n_u_values __pyx_string_tab[71]
-#define __pyx_n_u_vecinos __pyx_string_tab[72]
-#define __pyx_kp_b_iso88591_1_T_1_t5_AQ_4q_aq_q __pyx_string_tab[73]
-#define __pyx_kp_b_iso88591_A_0_E_q_P____Q_9O5_1IV1Ct5_Qa_R __pyx_string_tab[74]
-#define __pyx_kp_b_iso88591_A_U_q_Qc_U_q_U __pyx_string_tab[75]
-#define __pyx_kp_b_iso88591_A_t5 __pyx_string_tab[76]
-#define __pyx_kp_b_iso88591_Q __pyx_string_tab[77]
-#define __pyx_kp_b_iso88591_Q_uD_q __pyx_string_tab[78]
-#define __pyx_kp_b_iso88591_q_uD_1 __pyx_string_tab[79]
-#define __pyx_kp_b_iso88591_t5_31 __pyx_string_tab[80]
-#define __pyx_kp_b_iso88591_t5_a __pyx_string_tab[81]
+#define __pyx_n_u_NeuroNetCore_dfs __pyx_string_tab[17]
+#define __pyx_n_u_NeuroNetCore_memoria_mb __pyx_string_tab[18]
+#define __pyx_n_u_NeuroNetCore_nodo_mayor_grado __pyx_string_tab[19]
+#define __pyx_n_u_NeuroNetCore_tiempo_carga_ms __pyx_string_tab[20]
+#define __pyx_n_u_NeuroNetCore_total_aristas __pyx_string_tab[21]
+#define __pyx_n_u_NeuroNetCore_total_nodos __pyx_string_tab[22]
+#define __pyx_n_u_NeuroNetCore_vecinos __pyx_string_tab[23]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[24]
+#define __pyx_n_u_aristas __pyx_string_tab[25]
+#define __pyx_n_u_aristas_py __pyx_string_tab[26]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[27]
+#define __pyx_n_u_bfs __pyx_string_tab[28]
+#define __pyx_n_u_cargar_archivo __pyx_string_tab[29]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[30]
+#define __pyx_n_u_datos __pyx_string_tab[31]
+#define __pyx_n_u_dfs __pyx_string_tab[32]
+#define __pyx_n_u_encoded __pyx_string_tab[33]
+#define __pyx_n_u_float __pyx_string_tab[34]
+#define __pyx_n_u_func __pyx_string_tab[35]
+#define __pyx_n_u_getstate __pyx_string_tab[36]
+#define __pyx_n_u_i __pyx_string_tab[37]
+#define __pyx_n_u_int __pyx_string_tab[38]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[39]
+#define __pyx_n_u_items __pyx_string_tab[40]
+#define __pyx_n_u_main __pyx_string_tab[41]
+#define __pyx_n_u_memoria_mb __pyx_string_tab[42]
+#define __pyx_n_u_module __pyx_string_tab[43]
+#define __pyx_n_u_name __pyx_string_tab[44]
+#define __pyx_n_u_neuronet_core __pyx_string_tab[45]
+#define __pyx_n_u_nodo __pyx_string_tab[46]
+#define __pyx_n_u_nodo_mayor_grado __pyx_string_tab[47]
+#define __pyx_n_u_nodos __pyx_string_tab[48]
+#define __pyx_n_u_nodos_py __pyx_string_tab[49]
+#define __pyx_n_u_ok __pyx_string_tab[50]
+#define __pyx_n_u_origen __pyx_string_tab[51]
+#define __pyx_n_u_path __pyx_string_tab[52]
+#define __pyx_n_u_pop __pyx_string_tab[53]
+#define __pyx_n_u_profundidad __pyx_string_tab[54]
+#define __pyx_n_u_pyx_state __pyx_string_tab[55]
+#define __pyx_n_u_qualname __pyx_string_tab[56]
+#define __pyx_n_u_reduce __pyx_string_tab[57]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[58]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[59]
+#define __pyx_n_u_resultado __pyx_string_tab[60]
+#define __pyx_n_u_return __pyx_string_tab[61]
+#define __pyx_n_u_ruta __pyx_string_tab[62]
+#define __pyx_n_u_self __pyx_string_tab[63]
+#define __pyx_n_u_set_name __pyx_string_tab[64]
+#define __pyx_n_u_setdefault __pyx_string_tab[65]
+#define __pyx_n_u_setstate __pyx_string_tab[66]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[67]
+#define __pyx_n_u_str __pyx_string_tab[68]
+#define __pyx_n_u_test __pyx_string_tab[69]
+#define __pyx_n_u_tiempo_carga_ms __pyx_string_tab[70]
+#define __pyx_n_u_total_aristas __pyx_string_tab[71]
+#define __pyx_n_u_total_nodos __pyx_string_tab[72]
+#define __pyx_n_u_values __pyx_string_tab[73]
+#define __pyx_n_u_vecinos __pyx_string_tab[74]
+#define __pyx_kp_b_iso88591_1_T_1_t5_AQ_4q_aq_q __pyx_string_tab[75]
+#define __pyx_kp_b_iso88591_A_0_E_q_P____Q_9O5_1IV1Ct5_Qa_R __pyx_string_tab[76]
+#define __pyx_kp_b_iso88591_A_U_q_Qc_U_q_U __pyx_string_tab[77]
+#define __pyx_kp_b_iso88591_A_t5 __pyx_string_tab[78]
+#define __pyx_kp_b_iso88591_Q __pyx_string_tab[79]
+#define __pyx_kp_b_iso88591_Q_uD_q __pyx_string_tab[80]
+#define __pyx_kp_b_iso88591_q_uD_1 __pyx_string_tab[81]
+#define __pyx_kp_b_iso88591_t5_31 __pyx_string_tab[82]
+#define __pyx_kp_b_iso88591_t5_a __pyx_string_tab[83]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -2566,8 +2569,8 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   #endif
   Py_CLEAR(clear_module_state->__pyx_ptype_13neuronet_core_NeuroNetCore);
   Py_CLEAR(clear_module_state->__pyx_type_13neuronet_core_NeuroNetCore);
-  for (int i=0; i<10; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<82; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<11; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<84; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
 Py_CLEAR(clear_module_state->__pyx_CommonTypesMetaclassType);
@@ -2592,8 +2595,8 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_unicode);
   Py_VISIT(traverse_module_state->__pyx_ptype_13neuronet_core_NeuroNetCore);
   Py_VISIT(traverse_module_state->__pyx_type_13neuronet_core_NeuroNetCore);
-  for (int i=0; i<10; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<82; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<11; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<84; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
 Py_VISIT(traverse_module_state->__pyx_CommonTypesMetaclassType);
@@ -3939,6 +3942,7 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_18bfs(struct __pyx_obj_
  *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
  *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]             # <<<<<<<<<<<<<<
  *         return {"nodos": nodos_py, "aristas": aristas_py}
+ * 
 */
   { /* enter inner scope */
     __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 59, __pyx_L1_error)
@@ -3970,6 +3974,8 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_18bfs(struct __pyx_obj_
  *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
  *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
  *         return {"nodos": nodos_py, "aristas": aristas_py}             # <<<<<<<<<<<<<<
+ * 
+ *     def dfs(self, origen: int, profundidad: int):
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
@@ -4005,6 +4011,290 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_18bfs(struct __pyx_obj_
   return __pyx_r;
 }
 
+/* "src/cython/grafocore.pyx":62
+ *         return {"nodos": nodos_py, "aristas": aristas_py}
+ * 
+ *     def dfs(self, origen: int, profundidad: int):             # <<<<<<<<<<<<<<
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+ *         cdef int nodos = resultado.nodos.size()
+*/
+
+/* Python wrapper */
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_21dfs(PyObject *__pyx_v_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+static PyMethodDef __pyx_mdef_13neuronet_core_12NeuroNetCore_21dfs = {"dfs", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_21dfs, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_21dfs(PyObject *__pyx_v_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  PyObject *__pyx_v_origen = 0;
+  PyObject *__pyx_v_profundidad = 0;
+  #if !CYTHON_METH_FASTCALL
+  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[2] = {0,0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("dfs (wrapper)", 0);
+  #if !CYTHON_METH_FASTCALL
+  #if CYTHON_ASSUME_SAFE_SIZE
+  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #else
+  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
+  #endif
+  #endif
+  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  {
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_origen,&__pyx_mstate_global->__pyx_n_u_profundidad,0};
+    const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 62, __pyx_L3_error)
+    if (__pyx_kwds_len > 0) {
+      switch (__pyx_nargs) {
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 62, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  1:
+        values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      const Py_ssize_t kwd_pos_args = __pyx_nargs;
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "dfs", 0) < (0)) __PYX_ERR(0, 62, __pyx_L3_error)
+      for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("dfs", 1, 2, 2, i); __PYX_ERR(0, 62, __pyx_L3_error) }
+      }
+    } else if (unlikely(__pyx_nargs != 2)) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+      values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 62, __pyx_L3_error)
+    }
+    if (__Pyx_PyInt_FromNumber(&values[0], "origen", 0) < (0)) __PYX_ERR(0, 62, __pyx_L3_error)
+    __pyx_v_origen = ((PyObject*)values[0]);
+    if (__Pyx_PyInt_FromNumber(&values[1], "profundidad", 0) < (0)) __PYX_ERR(0, 62, __pyx_L3_error)
+    __pyx_v_profundidad = ((PyObject*)values[1]);
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("dfs", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 62, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_AddTraceback("neuronet_core.NeuroNetCore.dfs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_origen), (&PyLong_Type), 0, "origen", 2))) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_profundidad), (&PyLong_Type), 0, "profundidad", 2))) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_r = __pyx_pf_13neuronet_core_12NeuroNetCore_20dfs(((struct __pyx_obj_13neuronet_core_NeuroNetCore *)__pyx_v_self), __pyx_v_origen, __pyx_v_profundidad);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  goto __pyx_L7_cleaned_up;
+  __pyx_L0:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __pyx_L7_cleaned_up:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_20dfs(struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, PyObject *__pyx_v_origen, PyObject *__pyx_v_profundidad) {
+  neuronet::BFSResultado __pyx_v_resultado;
+  int __pyx_v_nodos;
+  int __pyx_v_aristas;
+  PyObject *__pyx_v_nodos_py = NULL;
+  PyObject *__pyx_v_aristas_py = NULL;
+  int __pyx_8genexpr3__pyx_v_i;
+  int __pyx_8genexpr4__pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  long __pyx_t_3;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
+  size_t __pyx_t_8;
+  int __pyx_t_9;
+  int __pyx_t_10;
+  PyObject *__pyx_t_11 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("dfs", 0);
+
+  /* "src/cython/grafocore.pyx":63
+ * 
+ *     def dfs(self, origen: int, profundidad: int):
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))             # <<<<<<<<<<<<<<
+ *         cdef int nodos = resultado.nodos.size()
+ *         cdef int aristas = resultado.aristas_origen.size()
+*/
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_origen); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_INCREF(__pyx_v_profundidad);
+  __pyx_t_2 = __pyx_v_profundidad;
+  __pyx_t_3 = 0;
+  __pyx_t_5 = __Pyx_PyLong_From_long(__pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_2, __pyx_t_5, Py_GT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (__pyx_t_7) {
+    __Pyx_INCREF(__pyx_t_2);
+    __pyx_t_4 = __pyx_t_2;
+  } else {
+    __pyx_t_6 = __Pyx_PyLong_From_long(__pyx_t_3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__Pyx_PyInt_FromNumber(&__pyx_t_6, NULL, 0) < (0)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_4 = __pyx_t_6;
+    __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_8 = __Pyx_PyLong_As_size_t(__pyx_t_4); if (unlikely((__pyx_t_8 == (size_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_v_resultado = __pyx_v_self->impl->dfsConDetalle(__pyx_t_1, ((size_t)__pyx_t_8));
+
+  /* "src/cython/grafocore.pyx":64
+ *     def dfs(self, origen: int, profundidad: int):
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+ *         cdef int nodos = resultado.nodos.size()             # <<<<<<<<<<<<<<
+ *         cdef int aristas = resultado.aristas_origen.size()
+ *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
+*/
+  __pyx_v_nodos = __pyx_v_resultado.nodos.size();
+
+  /* "src/cython/grafocore.pyx":65
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+ *         cdef int nodos = resultado.nodos.size()
+ *         cdef int aristas = resultado.aristas_origen.size()             # <<<<<<<<<<<<<<
+ *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
+ *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
+*/
+  __pyx_v_aristas = __pyx_v_resultado.aristas_origen.size();
+
+  /* "src/cython/grafocore.pyx":66
+ *         cdef int nodos = resultado.nodos.size()
+ *         cdef int aristas = resultado.aristas_origen.size()
+ *         nodos_py = [resultado.nodos[i] for i in range(nodos)]             # <<<<<<<<<<<<<<
+ *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
+ *         return {"nodos": nodos_py, "aristas": aristas_py}
+*/
+  { /* enter inner scope */
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_1 = __pyx_v_nodos;
+    __pyx_t_9 = __pyx_t_1;
+    for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
+      __pyx_8genexpr3__pyx_v_i = __pyx_t_10;
+      __pyx_t_6 = __Pyx_PyLong_From_int((__pyx_v_resultado.nodos[__pyx_8genexpr3__pyx_v_i])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 66, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 66, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+  } /* exit inner scope */
+  __pyx_v_nodos_py = ((PyObject*)__pyx_t_4);
+  __pyx_t_4 = 0;
+
+  /* "src/cython/grafocore.pyx":67
+ *         cdef int aristas = resultado.aristas_origen.size()
+ *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
+ *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]             # <<<<<<<<<<<<<<
+ *         return {"nodos": nodos_py, "aristas": aristas_py}
+*/
+  { /* enter inner scope */
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_1 = __pyx_v_aristas;
+    __pyx_t_9 = __pyx_t_1;
+    for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
+      __pyx_8genexpr4__pyx_v_i = __pyx_t_10;
+      __pyx_t_6 = __Pyx_PyLong_From_int((__pyx_v_resultado.aristas_origen[__pyx_8genexpr4__pyx_v_i])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_resultado.aristas_destino[__pyx_8genexpr4__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __Pyx_GIVEREF(__pyx_t_6);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_6) != (0)) __PYX_ERR(0, 67, __pyx_L1_error);
+      __Pyx_GIVEREF(__pyx_t_5);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_11, 1, __pyx_t_5) != (0)) __PYX_ERR(0, 67, __pyx_L1_error);
+      __pyx_t_6 = 0;
+      __pyx_t_5 = 0;
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_11))) __PYX_ERR(0, 67, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+    }
+  } /* exit inner scope */
+  __pyx_v_aristas_py = ((PyObject*)__pyx_t_4);
+  __pyx_t_4 = 0;
+
+  /* "src/cython/grafocore.pyx":68
+ *         nodos_py = [resultado.nodos[i] for i in range(nodos)]
+ *         aristas_py = [(resultado.aristas_origen[i], resultado.aristas_destino[i]) for i in range(aristas)]
+ *         return {"nodos": nodos_py, "aristas": aristas_py}             # <<<<<<<<<<<<<<
+*/
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_nodos, __pyx_v_nodos_py) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_aristas, __pyx_v_aristas_py) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
+  goto __pyx_L0;
+
+  /* "src/cython/grafocore.pyx":62
+ *         return {"nodos": nodos_py, "aristas": aristas_py}
+ * 
+ *     def dfs(self, origen: int, profundidad: int):             # <<<<<<<<<<<<<<
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+ *         cdef int nodos = resultado.nodos.size()
+*/
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_AddTraceback("neuronet_core.NeuroNetCore.dfs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_nodos_py);
+  __Pyx_XDECREF(__pyx_v_aristas_py);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
@@ -4012,15 +4302,15 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_18bfs(struct __pyx_obj_
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_21__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_23__reduce_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_13neuronet_core_12NeuroNetCore_21__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_21__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_21__reduce_cython__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_13neuronet_core_12NeuroNetCore_23__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_23__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_23__reduce_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4046,14 +4336,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   const Py_ssize_t __pyx_kwds_len = unlikely(__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
   if (unlikely(__pyx_kwds_len < 0)) return NULL;
   if (unlikely(__pyx_kwds_len > 0)) {__Pyx_RejectKeywords("__reduce_cython__", __pyx_kwds); return NULL;}
-  __pyx_r = __pyx_pf_13neuronet_core_12NeuroNetCore_20__reduce_cython__(((struct __pyx_obj_13neuronet_core_NeuroNetCore *)__pyx_v_self));
+  __pyx_r = __pyx_pf_13neuronet_core_12NeuroNetCore_22__reduce_cython__(((struct __pyx_obj_13neuronet_core_NeuroNetCore *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self) {
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
@@ -4093,15 +4383,15 @@ static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_20__reduce_cython__(CYT
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_23__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_25__setstate_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_13neuronet_core_12NeuroNetCore_23__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_23__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_23__setstate_cython__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_13neuronet_core_12NeuroNetCore_25__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_25__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_13neuronet_core_12NeuroNetCore_25__setstate_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4167,7 +4457,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_13neuronet_core_12NeuroNetCore_22__setstate_cython__(((struct __pyx_obj_13neuronet_core_NeuroNetCore *)__pyx_v_self), __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_13neuronet_core_12NeuroNetCore_24__setstate_cython__(((struct __pyx_obj_13neuronet_core_NeuroNetCore *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -4177,7 +4467,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_13neuronet_core_12NeuroNetCore_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_13neuronet_core_NeuroNetCore *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
@@ -4260,8 +4550,9 @@ static PyMethodDef __pyx_methods_13neuronet_core_NeuroNetCore[] = {
   {"memoria_mb", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_15memoria_mb, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"tiempo_carga_ms", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_17tiempo_carga_ms, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"bfs", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_19bfs, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_21__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_23__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"dfs", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_21dfs, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_23__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13neuronet_core_12NeuroNetCore_25__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 #if CYTHON_USE_TYPE_SPECS
@@ -4889,18 +5180,39 @@ __Pyx_RefNannySetupContext("PyInit_neuronet_core", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_13neuronet_core_NeuroNetCore, __pyx_mstate_global->__pyx_n_u_bfs, __pyx_t_2) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
+  /* "src/cython/grafocore.pyx":62
+ *         return {"nodos": nodos_py, "aristas": aristas_py}
+ * 
+ *     def dfs(self, origen: int, profundidad: int):             # <<<<<<<<<<<<<<
+ *         cdef grafocore.BFSResultado resultado = self.impl.dfsConDetalle(origen, <size_t>max(0, profundidad))
+ *         cdef int nodos = resultado.nodos.size()
+*/
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_origen, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_profundidad, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_13neuronet_core_12NeuroNetCore_21dfs, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_NeuroNetCore_dfs, NULL, __pyx_mstate_global->__pyx_n_u_neuronet_core, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_3);
+  #endif
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_3, __pyx_t_2);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_13neuronet_core_NeuroNetCore, __pyx_mstate_global->__pyx_n_u_dfs, __pyx_t_3) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_13neuronet_core_12NeuroNetCore_21__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_NeuroNetCore___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_neuronet_core, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_13neuronet_core_12NeuroNetCore_23__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_NeuroNetCore___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_neuronet_core, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_3);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -4908,23 +5220,23 @@ __Pyx_RefNannySetupContext("PyInit_neuronet_core", 0);
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_13neuronet_core_12NeuroNetCore_23__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_NeuroNetCore___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_neuronet_core, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_13neuronet_core_12NeuroNetCore_25__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_NeuroNetCore___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_neuronet_core, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_3);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 3, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_3) < (0)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "src/cython/grafocore.pyx":1
  * # cython: language_level=3             # <<<<<<<<<<<<<<
  * 
  * # importaciones desde la libreria estandar
 */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_3) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -4987,31 +5299,31 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{28},{31},{179},{8},{7},{6},{2},{9},{50},{24},{14},{12},{30},{32},{16},{27},{23},{29},{28},{26},{24},{20},{20},{7},{10},{18},{3},{14},{18},{5},{7},{5},{8},{12},{1},{3},{13},{5},{8},{10},{10},{8},{13},{4},{16},{5},{8},{2},{6},{4},{3},{11},{11},{12},{10},{17},{13},{9},{6},{4},{4},{12},{10},{12},{19},{3},{8},{15},{13},{11},{6},{7},{55},{123},{43},{17},{9},{19},{19},{17},{17}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (984 bytes) */
-const char* const cstring = "BZh91AY&SYI\n\237\312\000\000_\177\377f|\376\377\373\257\356o\257#\367\014\377\377\377p@@@@@@@@@@@@@\000P\003>\356\353wo]\356\356l\336{\206\222\010\236\243\332MG\251\351\251\341!\265\032\000\000h2\000\003\323(4h\r=G\244\323\365M\010\206\202\032jcMI\352\001\351\000\032\000\000h\003A\240\000\006@\006\201\251\223\023JzT\375$\375)\264z\221\243CF\021\210\3102\032\032\001\2400\206\230\214\207\244\323 i\244 H\3654i\352\000\365\000\000\032\006A\240\310\000\000\000\r\000\004\242\0204\0054\365OI\372\236\250=FL\203A\223 0\200\3010@\r\007\251\247\246\243d\365\211\202\376\034X\200\377\230a\031\376 DLjc\206z]\211\210\212\262J\3676\270%s\005\232\007\023)\304\020\210#s\371\340\341\322\341\340O\006\353!`\356b\340\n\263\3429\025C\356a\177\252\035,\023\002\223\014RL\332'\002\205\214\354{7Y]l\2162\003\212B=\350\214\372M\\Gl\342\375]\251\021\177=b\306QdB\317\312\323\201\240\"\016_b\340\007\016\250M(\234\"\013\302\035NS$Q\251#\n\261\324\311T\024(S3e*Vs\204\010@\370\232\271\\\262\000?1\210GN\016\020%#\220\345\221Fd\277\036\2717b\346RM\t\362\316\263\031\242\321uk\234\004X\021\241\250\350\203\004\"r\025\3064BuIK\363_vW\364\355\221H\261U\\\327\032R\246\027\264\027\275\307\315*r\331\245V%\r\010\010\031\250\022`\202\036\tg/J\212\204\033\236\222k\006\304/]\313PSt<\373T\311\3232\365\360\214\312\360\0220\362\230\236+c\2144&\024p\343\350\200eI'\207+\274\211H\342\024\235TM\017<\204\020\030\201\253\211m8Cw\r\210i@%&[5|)*\244\230\313\206\344\256\311M`\034\363\024\034S\010T\262\250^\007uhOj\332\203\245R5\213\305\010\002\201R5 r \353\031w\005\311\323#\242RG\024\217B,\215\210J\372Q\\\013\005D\220\261\261#\341\021\250\r\005\021\220^\020\264K\026H\212\210\016\361\216\220\010cP\314\013:Z\301\002\200\010G9\032\030\321|\\\225\312\350\320*](`\004\226B\307*\002IQ\024\217A~\350\030\366\020\234\214\005\262\212\355lM\334^\213X\227\2561\030\264\"\302\003\021l\276\014^D\347=\022\332$\257*\005BgJM\t\200G\252\n\347\227\2325\353R\214`-K\035r\2249\303\312+\242\022\263\240\246\247\203;\033Y\331\031inK\t\206u\301\331=8HA""2\347\352)\023Z\302\344\004DJ\200_\001+\313D\220\314zb\213\211\"\200+\354b\253\235X%j\263\205N`\025\255\330\244.8\025\004!R\306x\010Jd\246UF\002\035\254tJV\330D\216\002C\233#\020\212\224`\010\244\365P\014a\005\265)@\222\224\r\250D$CM\246B(.\247j\332q\274\274\206X\265f\262\242\013H\354\244\022\363J\010n\326\306%\322%Y\365\350N1\306\031\306M\022\n\3173k\305\325\327\330+\230\203\261X\216\201c\211c\267\336\2135vC\2366|\216kB\300\265^X}f\314\367\037\326\3573$\276p]g\357E\371\252\\\231\207\345\304EAU\032\022~\236\223gE\353\202\032j\202\306\205\230\177\224k\374!\024\305\256\262^01>\352\340\372\373V\257\035\354\215l\346\224\347\254\2259\365)\360u\377\213\271\"\234(H$\205O\345\000";
-    PyObject *data = __Pyx_DecompressString(cstring, 984, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{28},{31},{179},{8},{7},{6},{2},{9},{50},{24},{14},{12},{30},{32},{16},{27},{16},{23},{29},{28},{26},{24},{20},{20},{7},{10},{18},{3},{14},{18},{5},{3},{7},{5},{8},{12},{1},{3},{13},{5},{8},{10},{10},{8},{13},{4},{16},{5},{8},{2},{6},{4},{3},{11},{11},{12},{10},{17},{13},{9},{6},{4},{4},{12},{10},{12},{19},{3},{8},{15},{13},{11},{6},{7},{55},{123},{43},{17},{9},{19},{19},{17},{17}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (968 bytes) */
+const char* const cstring = "BZh91AY&SY\037\245x\364\000\000_\377\377f|\376\377\373\257\356o\257#\367\014\377\377\377p@@@@@@@@@@@@@\000P\003>\356\354\355\275\025\315\233\2144\210\215OF\324jmOMOF\223O)\223@\0004\031\000\003\rA\243@i\3522z\236\210EM2h\r1\250\000\000\000\000\001\240\000\000\000\000\000\003Bdi4\231\032&5#\020\r\r\000\000\000\000\000\000\r\017Hh\r4IO\032\221\243\324=A\241\352\000\000\000d\000\000\000\000\000\000\r\020\232G\246\246(\336\251\223OPh\000\000\0004\000\000\000\000\320\323Cjn\002\255V\275\213\000\017\321]a\037\201\342\"\224\304\253\235\022\254 \210\316l\014R\\\364\n@6\222A\016p\006 \r\035=\2326y{?e\351|b\247\243\231\237@f\236\322H\353\037D\r\374`\344\2249\360BJb\315X%D\000\301\312L/\254\242\350(\303\017\002\221\200\001\0274\022\232\211)d\t\240\350\355U64\205\025*)\253\023\313\375+\034\031\300\t\254l\251!\244F\t\036\313@\022\317\006\3224\0079[M\371Mg\257\0069\013,\330K\261\234h\252*f\207\311>\247\222\204\004\363!\026Ma\222\000\267JJx\244\221\\\260\340\034v*\327Y\251\277\005,A\303\027\213Z\311\220\204A\242\243\rP\200\304\022B\031\201 \204\343(\005V\325U\037\241\210\037\232o\306\346\331\244Db\273\022\001\344y\377@_t\263#\302`\300p\201\230p\362\210E8\037Aj\023S \312\207IP\310zt5\023\016\266'Oa\322l\330t\362\205\214Y\310I\003\312by\343\2504\224\342(\341\307\265@\327\222\317JV\355\255!\230\341\247\221\356p\220E\022\020@d\016[\372\021\007\333GZ\034B\t\211\232\275a\nJ\2513\260\334Gn\314r\233\020t\3410H.\021[J\261\220%\255C{\332\365\032\325\254nm\240\010\330\311\3142\200K\246\231t]\200\261g\026\241\233\312u\020\226.\274FMI\\\005\340\310\246/\205\255\241\254\220J\264\241\212\017\001\2268(V\233T\256\213\020+\303(f\024X\335\202\000\200\302}b83\205\311\201*V\t\350\025-\0240\004\226\215\240T\004\222\241\362\305\367\314\360{\214NH\003]Fx\337\004w\030\341\033\227\035Q4\027\205`\0133]\224 OR\234\302)!\232\352/\031\006\252\000\325\212\304L2\006\246\ni\ta\306a\010\000\3439\216\200B\245\006\010]\n\303\205\241\214\374\254\tR\214 \211\004\223\320\032\021x\002\247\334,,\202P\250\230\221T\3460 !""\344\250\006\024\t!p\2269\324\323\224Y\211_\020XY\225\031\226\261\252\321g\014\270\000\261\355\202\225S\002\260\246+hOA\211L\331\017\004\001\027#QV\226G\t\253\200\245\212H\n\014p g'\256\200i\202k\326\224\013)\022F\206a\363\032Ki\007\336\240XrE+\0052\026\300\343\276Da\351\004\312Q\020*i\020\205\320r\016SB\20626e\3072\006B\005)\244#(fV\263\331\333`W1\006\354\332\267,\262\304\026\357xEr\256\330k\312\347\232\rtZ\027k\300\367\265\374\357\201\206\366%\337\203\321\310W\374\323\237~\236\013\362\247\301\223\0251V-'\377\221A\224E\213\000[EI\027\2670\255\211C\322\250\222Q\345\360\311'P3\341\351\315\203\356\307\312\357c\314\231D\354&\235\210\313$\345)\207o\370\273\222)\302\204\200\375+\307\240";
+    PyObject *data = __Pyx_DecompressString(cstring, 968, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (839 bytes) */
-const char* const cstring = "x\332uS\317o\033E\024V$GZ\240R0\024\225\246\004\306 \250*Z\007\213D\242j\001Ui\221r \304\021\311\245\225&\343\231g{\350\356\314zf\326\362\366\304\321\307=\356q\217{\3641G\2169\316q\217\374)\274\265\215k\207b\311\273\317\357\307\367\336\367\336\347\237O4\261@\342Dh\302\231\0310C $\2029f\301\255\305\244\222\\\262P\276Y$\014\014\353\353\023\355\200\270!s\344(uC\255\210\264D@({`\230\2030%\326\031\311\035\230:I\221\323\027\247\217\016~8 L\tb\340\017\340\316\022\233\364x\310\254\005Kt\237\364\022\031:\251\210Kc\260mr\334'\251N\210\002\020\304i\022c\336z\201\033\202\302\371\\m\220\373L)\355\230\223ZQ,\227jp\237\010i\260\211\034C]\375\013\013-\264\231\020\024\363@H\313z!\200\252\237\003.\355\302\022J#\203>KBG(5 \022\016\224\022\221\314!\224V\217\220\321\030\367\200Q\216+q\224Z\303\367\371\234\376\376|)\\\033h\307\351\344iM^\r\254N\014\207\237N 1\372\004\334\021F\327\355\366\252\313\002\203\322\033Q\344g\221\326\377\304{}\273\361{qA\312\014\037\312\261\336\010E\020i#\031\215z\033n\245\205\246\021K\265\2418\276\330\254q\022\242X\3239*\2156[9\334v\210\235$\216\367\256H\r\274\351\037\003\256L[JO\323\t~\237\2434\220\315\304\235\341\302\0270\313\027\215SfS\305\245n\3436u\202\222\000\213T7\331\361\020\335T\342\271\r\343\320c\3745\252V\343!\271\026 \372\241fx\235~\2428\305\317\340\3375R)\225\243\322\322\025\262t\020\341P\021C(\372vKhk\221\204PW+\026\341[\325d\024\270\272\024jz7w7\247<\177 \003\375\032\201\006\240b\346\206\261\216c\243q\026!\005\023\024\243\023\272\034g\224\260p\001\377Vo\377\321\304\312\001\223\332\264(Olg\300%F\231\244\376\253\206\375\271T\226\223\242\265T\361\232\200\350;\304\204\032\245\324\201\305\274\033\267\3368\357\332E\307,L\300.O\351\033_\025\235\277\203\275\374\367\342N\271U6\253\340^\336\251\202;\231\313\017\213[\345\263\262[\005\037L\017\246\243\352\326G\331\303\234\345\243*\330\231\216|c\327\357>,\237U\301w\263\306\354\305\325\347\177\215\256\003\177\372\312\277\242\236^V\301\335\374n\361M\271]W\337\313\037\027\277\315\016\257\266\252\340\343\254\223""\035\347\027E\2478*\\y8\333\236ug\254\n>\311\316\262\264\330)G\010u\354\177\374\365\272{-\374\331\205\277x\351_^\372K\346Y\257\n>\314\336\313w\213'%\363\215\317r\354\333*n\027\347\345\376U\363\2525\237(\333\316\272\031\317o\347\347\305\327\305\010[\237\317Z\313\324\235\251\313\016\375\247\017\312\346\237[U\343\375\351\267Y\3277\366\362n\035I\262\347\371\266\337\333/\221\322\027\013rKWg\326\364\215V\321\\\325\177?\353\370\306\227Ek\345h\227\354\037p\375,:";
-    PyObject *data = __Pyx_DecompressString(cstring, 839, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (843 bytes) */
+const char* const cstring = "x\332uS\317o\033E\024V$GZ\240R0\024\225\246\004\306 \250*Z\007\213D\242j\001Ui\221r \304\021\311\245\225&\343\231g{\350\356\314zf\326\362\366\304\321\307=\356q\217{\3641G\2169\316q\217\374)\274\265\215k\207b\311\273\317\357\307\367\336\367\336\347\237O4\261@\342Dh\302\231\0310C $\2029f\301\255\305\244\222\\\262P\276Y$\014\014\353\353\023\355\200\270!s\344(uC\255\210\264D@({`\230\2030%\326\031\311\035\230:I\221\323\027\247\217\016~8 L\tb\340\017\340\316\022\233\364x\310\254\005Kt\237\364\022\031:\251\210Kc\260mr\334'\251N\210\002\020\304i\022c\336z\201\033\202\302\371\\m\220\373L)\355\230\223ZQ,\227jp\237\010i\260\211\034C]\375\013\013-\264\231\020\024\363@H\313z!\200\252\237\003.\355\302\022J#\203>KBG(5 \022\016\224\022\221\314!\224V\217\220\321\030\367\200Q\216+q\224Z\303\367\371\234\376\376|)\\\033h\307\351\344iM^\r\254N\014\207\237N 1\372\004\334\021F\327\355\366\252\313\002\203\322\033Q\344g\221\326\377\304{}\273\361{qA\312\014\037\312\261\336\010\211\033\251\021D\332HF\243\336\206[i\241i\304Rm(\322\021\233\030NB\024k:\357B\243M<\207\333\017\261\263\304q\337\025\251\2017\375c\300\025jK\351i:\301\357s\224\n\262\233\2703<\300\002f\371\242q\312l\252\270\324m\334\256NP\"`\221\372&[\036\242\233J<\277a\034z\214\277F\025k\213\274Aq-@\364C\315\360`\375Dq\212\237\301\277\233\245R*G\245\245+p\351 \302\271\"\206h\364\355\242\320\326\"\t\241\256V,\302\267\252\371(pu)\324\014o\256o\316z\376@\022\3725\002\r@\305\314\rc\035\307F\343,B\n&(F't9\316(a\341\002\376\255\004\377#\223\225\003&\265iQ\261\330\316\200K\2142I\375\357\r\373s\365,'Ek)\3545M\321w\350\013eK\251\003\213y7\316\275q\341\265\243\216Y\230\200]^\3237\276*:\177\007{\371\357\305\235r\253lV\301\275\274S\005w2\227\037\026\267\312ge\267\n>\230\036LG\325\255\217\262\2079\313GU\2603\035\371\306\256\337}X>\253\202\357f\215\331\213\253\317\377\032]\007\376\364\225\177E=\275\254\202\273\371\335\342\233r\273\256\276\227?.~\233\035^mU\301\307Y';\316/\212NqT\270\362p\266=\353\316X\025|\222\235ei\261S\216\020\352\330\377\370""\353u\367Z\370\263\013\177\361\322\277\274\364\227\314\263^\025|\230\275\227\357\026OJ\346\033\237\345\330\267U\334.\316\313\375\253\346Uk>Q\266\235u3\236\337\316\317\213\257\213\021\266>\237\265\226\251;S\227\035\372O\037\224\315?\267\252\306\373\323o\263\256o\354\345\335:\222d\317\363m\277\267_\"\245/\026\344\226\256\316\254\351\033\255\242\271\252\377~\326\361\215/\213\326\312\321.\331?\306\0253\233";
+    PyObject *data = __Pyx_DecompressString(cstring, 843, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1404 bytes) */
-const char* const bytes = "?No se pudo cargar el datasetNo se pudo inicializar el grafoNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.add_notedisableenablegcisenabledno default __reduce__ due to non-trivial __cinit__src/cython/grafocore.pyx<stringsource>NeuroNetCoreNeuroNetCore.__reduce_cython__NeuroNetCore.__setstate_cython__NeuroNetCore.bfsNeuroNetCore.cargar_archivoNeuroNetCore.memoria_mbNeuroNetCore.nodo_mayor_gradoNeuroNetCore.tiempo_carga_msNeuroNetCore.total_aristasNeuroNetCore.total_nodosNeuroNetCore.vecinos__Pyx_PyDict_NextRefaristasaristas_pyasyncio.coroutinesbfscargar_archivocline_in_tracebackdatosencodedfloat__func____getstate__iint_is_coroutineitems__main__memoria_mb__module____name__neuronet_corenodonodo_mayor_gradonodosnodos_pyokorigenpathpopprofundidad__pyx_state__qualname____reduce____reduce_cython____reduce_ex__resultadoreturnrutaself__set_name__setdefault__setstate____setstate_cython__str__test__tiempo_carga_mstotal_aristastotal_nodosvaluesvecinos\320\004#\2401\340\010\035\230T\240\027\250\001\250\021\330\010\033\2301\330\010\027\220t\2305\240\014\250A\250Q\330\010\013\2104\210q\330\014\022\220,\230a\230q\330\010\017\210q\320\004\032\320\032,\250A\330\0100\260\004\260E\270\036\300q\310\010\320P\\\320\\_\320_`\330\010\031\230\031\240&\250\005\250Q\330\010\033\2309\240O\2605\270\001\330\010\023\2201\220I\230V\2401\240C\240t\2505\260\005\260Q\260a\330\010\025\220R\220y\240\017\250q\260\004\260I\320=M\310Q\310d\320RV\320V[\320[`\320`a\320ab\330\010\020\220\t\230\032\240;\250a\320\004\034\230A\330\010!\240\024\240U\250/\270\021\270!\330\010\017\210q\220\005\220Q\220c\230\024\230U\240%\240q\250\005\250U\260!\320\004\034\230A\330\010\017\210t\2205\320\030)\250\021\200\001\330\004\n\210+\220Q\320\004\035\230Q\330\010\017\210u\220D\230\005\320\035/\250q\320\004\037\230q\330\010\017\210u\220D\230\005\320\0351\260\021\320\004!\240\021\330\010\017\210t""\2205\320\0303\2601\320\004\"\240!\330\010\017\210t\2205\320\030.\250a";
+    #else /* compression: none (1423 bytes) */
+const char* const bytes = "?No se pudo cargar el datasetNo se pudo inicializar el grafoNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.add_notedisableenablegcisenabledno default __reduce__ due to non-trivial __cinit__src/cython/grafocore.pyx<stringsource>NeuroNetCoreNeuroNetCore.__reduce_cython__NeuroNetCore.__setstate_cython__NeuroNetCore.bfsNeuroNetCore.cargar_archivoNeuroNetCore.dfsNeuroNetCore.memoria_mbNeuroNetCore.nodo_mayor_gradoNeuroNetCore.tiempo_carga_msNeuroNetCore.total_aristasNeuroNetCore.total_nodosNeuroNetCore.vecinos__Pyx_PyDict_NextRefaristasaristas_pyasyncio.coroutinesbfscargar_archivocline_in_tracebackdatosdfsencodedfloat__func____getstate__iint_is_coroutineitems__main__memoria_mb__module____name__neuronet_corenodonodo_mayor_gradonodosnodos_pyokorigenpathpopprofundidad__pyx_state__qualname____reduce____reduce_cython____reduce_ex__resultadoreturnrutaself__set_name__setdefault__setstate____setstate_cython__str__test__tiempo_carga_mstotal_aristastotal_nodosvaluesvecinos\320\004#\2401\340\010\035\230T\240\027\250\001\250\021\330\010\033\2301\330\010\027\220t\2305\240\014\250A\250Q\330\010\013\2104\210q\330\014\022\220,\230a\230q\330\010\017\210q\320\004\032\320\032,\250A\330\0100\260\004\260E\270\036\300q\310\010\320P\\\320\\_\320_`\330\010\031\230\031\240&\250\005\250Q\330\010\033\2309\240O\2605\270\001\330\010\023\2201\220I\230V\2401\240C\240t\2505\260\005\260Q\260a\330\010\025\220R\220y\240\017\250q\260\004\260I\320=M\310Q\310d\320RV\320V[\320[`\320`a\320ab\330\010\020\220\t\230\032\240;\250a\320\004\034\230A\330\010!\240\024\240U\250/\270\021\270!\330\010\017\210q\220\005\220Q\220c\230\024\230U\240%\240q\250\005\250U\260!\320\004\034\230A\330\010\017\210t\2205\320\030)\250\021\200\001\330\004\n\210+\220Q\320\004\035\230Q\330\010\017\210u\220D\230\005\320\035/\250q\320\004\037\230q\330\010\017\210u\220D\230\005\320\0351\260\021\320\004!\240\021""\330\010\017\210t\2205\320\0303\2601\320\004\"\240!\330\010\017\210t\2205\320\030.\250a";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 73; i++) {
+    for (int i = 0; i < 75; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 12) PyUnicode_InternInPlace(&string);
@@ -5022,7 +5334,7 @@ const char* const bytes = "?No se pudo cargar el datasetNo se pudo inicializar e
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 73; i < 82; i++) {
+    for (int i = 75; i < 84; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -5033,14 +5345,14 @@ const char* const bytes = "?No se pudo cargar el datasetNo se pudo inicializar e
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 82; i++) {
+    for (Py_ssize_t i = 0; i < 84; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 73;
+      PyObject **table = stringtab + 75;
       for (Py_ssize_t i=0; i<9; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         Py_SET_REFCNT(table[i], _Py_IMMORTAL_REFCNT_LOCAL);
@@ -5119,14 +5431,19 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_cython_grafocore_pyx, __pyx_mstate->__pyx_n_u_bfs, __pyx_mstate->__pyx_kp_b_iso88591_A_0_E_q_P____Q_9O5_1IV1Ct5_Qa_R, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 10, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 62};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_origen, __pyx_mstate->__pyx_n_u_profundidad, __pyx_mstate->__pyx_n_u_resultado, __pyx_mstate->__pyx_n_u_nodos, __pyx_mstate->__pyx_n_u_aristas, __pyx_mstate->__pyx_n_u_nodos_py, __pyx_mstate->__pyx_n_u_aristas_py, __pyx_mstate->__pyx_n_u_i, __pyx_mstate->__pyx_n_u_i};
+    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_cython_grafocore_pyx, __pyx_mstate->__pyx_n_u_dfs, __pyx_mstate->__pyx_kp_b_iso88591_A_0_E_q_P____Q_9O5_1IV1Ct5_Qa_R, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
+  }
+  {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_pyx_state};
-    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_mstate->__pyx_kp_b_iso88591_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_mstate->__pyx_kp_b_iso88591_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;

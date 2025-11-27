@@ -13,6 +13,9 @@ from pathlib import Path
 
 import networkx as nx
 from PyQt6 import QtCore, QtGui, QtWidgets
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
 
 from neuronet_core import NeuroNetCore
 
@@ -21,7 +24,10 @@ from neuronet_core import NeuroNetCore
 class WorkerSignals(QtCore.QObject):
     finished = QtCore.pyqtSignal(str)
     error = QtCore.pyqtSignal(str)
+    finished = QtCore.pyqtSignal(str)
+    error = QtCore.pyqtSignal(str)
     result = QtCore.pyqtSignal(str, object)
+    progress = QtCore.pyqtSignal(str) # Nuevo signal para mensajes de progreso
 
 
 # ejecutor reutilizable para tareas pesadas
@@ -37,6 +43,16 @@ class Worker(QtCore.QRunnable):
     @QtCore.pyqtSlot()
     def run(self):
         try:
+            # Pasar callback de progreso si la funcion lo acepta
+            if "progress_callback" in self.kwargs:
+                self.kwargs["progress_callback"] = self.signals.progress.emit
+            else:
+                # Inyectarlo como ultimo argumento si no esta en kwargs
+                pass
+                
+            data = self.fn(*self.args, **self.kwargs, progress_callback=self.signals.progress.emit)
+        except TypeError:
+            # Si falla por argumentos, intentar sin callback (compatibilidad)
             data = self.fn(*self.args, **self.kwargs)
         except Exception as exc:  # noqa: BLE001
             self.signals.error.emit(str(exc))
@@ -46,136 +62,90 @@ class Worker(QtCore.QRunnable):
             self.signals.finished.emit(self.task)
 
 
-# vista grafica con zoom fluido
-class ZoomableGraphicsView(QtWidgets.QGraphicsView):
-    def __init__(self, scene: QtWidgets.QGraphicsScene):
-        super().__init__(scene)
-        self.setRenderHints(
-            QtGui.QPainter.RenderHint.Antialiasing
-            | QtGui.QPainter.RenderHint.TextAntialiasing
-            | QtGui.QPainter.RenderHint.SmoothPixmapTransform
-        )
-        self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
-        self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
-        self._zoom_steps = 0
-
-    def wheelEvent(self, event: QtGui.QWheelEvent):  # noqa: D401
-        delta = event.angleDelta().y()
-        if delta == 0:
-            super().wheelEvent(event)
-            return
-        factor = 1.2 if delta > 0 else 1 / 1.2
-        if self._zoom_steps <= -15 and factor < 1:
-            return
-        if self._zoom_steps >= 60 and factor > 1:
-            return
-        self._zoom_steps += 1 if factor > 1 else -1
-        self.scale(factor, factor)
-
-    def reset_zoom(self):
-        self._zoom_steps = 0
-        self.resetTransform()
-
-
-# ventana dedicada para el subgrafo interactivo
+# ventana dedicada para el subgrafo interactivo con Matplotlib
 class GraphWindow(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Subgrafo NeuroNet")
-        self.resize(1100, 760)
+        self.resize(1200, 800)
         layout = QtWidgets.QVBoxLayout(self)
-        self.scene = QtWidgets.QGraphicsScene(self)
-        self.view = ZoomableGraphicsView(self.scene)
+        
+        # Matplotlib setup
+        self.figure = Figure(figsize=(10, 8), dpi=100, facecolor='#1e1e1e')
+        self.canvas = FigureCanvasQTAgg(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        # Estilo de la toolbar para que coincida con el tema (Cyan para botones, fondo oscuro)
+        self.toolbar.setStyleSheet("background-color: #4ECDC4; color: #1e1e1e; border: none;")
+        
         self.info_label = QtWidgets.QLabel()
-        self.info_label.setWordWrap(True)
-        self.info_label.setStyleSheet("color:#f5f5f7;font-size:12px")
-        controls = QtWidgets.QHBoxLayout()
-        reset_btn = QtWidgets.QPushButton("Ajustar vista")
-        reset_btn.clicked.connect(self._fit_view)
-        controls.addWidget(reset_btn)
-        controls.addStretch()
+        self.info_label.setStyleSheet("color:#e0e0e0;font-size:14px;font-weight:bold;font-family:'Segoe UI'")
+        
         layout.addWidget(self.info_label)
-        layout.addLayout(controls)
-        layout.addWidget(self.view)
+        layout.addWidget(self.toolbar)
+        layout.addWidget(self.canvas)
 
-    # dibuja datos recibidos aplicando zoom interactivo
     def render(self, graph: nx.DiGraph, layout_positions: dict[int, tuple[float, float]], origen: int):
-        self.scene.clear()
+        self.figure.clear()
+        ax = self.figure.add_subplot(111)
+        ax.set_axis_off()
+        
         if not layout_positions:
+            self.canvas.draw()
             return
-        xs = [pos[0] for pos in layout_positions.values()]
-        ys = [pos[1] for pos in layout_positions.values()]
-        min_x, max_x = min(xs), max(xs)
-        min_y, max_y = min(ys), max(ys)
-        span_x = max(max_x - min_x, 1e-3)
-        span_y = max(max_y - min_y, 1e-3)
-        target_w = 1600.0
-        target_h = 1000.0
-        scale_factor = min(1.0, min(target_w / span_x, target_h / span_y))
-        margin_x = 90.0
-        margin_y = 60.0
-        adjusted_w = span_x * scale_factor
-        adjusted_h = span_y * scale_factor
-        extra_bottom = (adjusted_h * 0.4) + 240.0
-        scene_width = adjusted_w + (margin_x * 2)
-        scene_height = adjusted_h + margin_y + extra_bottom
-        self.scene.setSceneRect(0.0, 0.0, scene_width, scene_height)
-        positions = {}
-        for node, (x, y) in layout_positions.items():
-            adj_x = ((x - min_x) * scale_factor) + margin_x
-            adj_y = ((y - min_y) * scale_factor) + margin_y
-            positions[node] = QtCore.QPointF(adj_x, adj_y)
-        max_degree = max((deg for _, deg in graph.degree()), default=1)
-        pen_edge = QtGui.QPen(QtGui.QColor("#6c63ff"))
-        pen_edge.setWidthF(0.9)
-        pen_edge.setCosmetic(True)
-        for u, v in graph.edges():
-            if u not in positions or v not in positions:
-                continue
-            line = self.scene.addLine(
-                positions[u].x(),
-                positions[u].y(),
-                positions[v].x(),
-                positions[v].y(),
-                pen_edge,
-            )
-            line.setOpacity(0.55)
-        for node, point in positions.items():
-            grado = graph.degree(node)
-            intensidad = grado / max_degree if max_degree else 0
-            hue = 0.66 - 0.5 * intensidad
-            base_color = QtGui.QColor.fromHsvF(max(0.0, hue), 0.55, 1.0)
-            brush = QtGui.QBrush(base_color)
-            pen = QtGui.QPen(QtGui.QColor("#101321"))
-            pen.setWidthF(1.1)
-            radius = 9 + (math.log1p(grado) * 2.5)
-            ellipse = self.scene.addEllipse(
-                point.x() - radius,
-                point.y() - radius,
-                radius * 2,
-                radius * 2,
-                pen,
-                brush,
-            )
-            if node == origen:
-                ellipse.setBrush(QtGui.QBrush(QtGui.QColor("#ffbd39")))
-            label = self.scene.addSimpleText(str(node))
-            label.setBrush(QtGui.QBrush(QtGui.QColor("#f5f5f7")))
-            label.setPos(point.x() + radius + 4, point.y() + radius + 4)
-        self.info_label.setText(
-            f"Nodos mostrados: {graph.number_of_nodes()} | Aristas: {graph.number_of_edges()} | Origen BFS: {origen}"
+
+        # Styling
+        node_colors_list = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71', '#F1C40F', '#E74C3C', '#1ABC9C', '#8E44AD', '#34495E']
+        
+        # Draw edges
+        nx.draw_networkx_edges(
+            graph, 
+            pos=layout_positions, 
+            ax=ax, 
+            edge_color='#555555', 
+            width=1.5, 
+            alpha=0.7, 
+            arrows=True, 
+            arrowstyle='-|>', 
+            arrowsize=12
         )
-        self._fit_view()
-        self.setModal(False)
+        
+        # Assign colors
+        node_colors = []
+        for i, node in enumerate(graph.nodes()):
+            if node == origen:
+                node_colors.append('#ffffff') # Origin distinct
+            else:
+                node_colors.append(node_colors_list[i % len(node_colors_list)])
+        
+        # Draw nodes
+        nx.draw_networkx_nodes(
+            graph, 
+            pos=layout_positions, 
+            ax=ax, 
+            node_size=500, 
+            node_color=node_colors, 
+            edgecolors='#ffffff', 
+            linewidths=1.5
+        )
+        
+        # Draw labels
+        nx.draw_networkx_labels(
+            graph, 
+            pos=layout_positions, 
+            ax=ax, 
+            font_size=10, 
+            font_color='white', 
+            font_family='sans-serif', 
+            font_weight='bold'
+        )
+        
+        self.info_label.setText(
+            f"Nodos: {graph.number_of_nodes()} | Aristas: {graph.number_of_edges()} | Origen: {origen}"
+        )
+        self.canvas.draw()
         self.show()
         self.raise_()
         self.activateWindow()
-
-    def _fit_view(self):
-        self.view.reset_zoom()
-        rect = self.scene.itemsBoundingRect()
-        if rect.isValid():
-            self.view.fitInView(rect, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
 
 
 # ventana principal con estilo moderno
@@ -190,11 +160,12 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         self.thread_pool = QtCore.QThreadPool()
         self.thread_pool.setMaxThreadCount(1)
         self.dataset_dir = Path(__file__).parent / "dataset"
+        self.showMaximized()
         self.dataset_loaded = False
         self.total_nodes = 0
         self.graph_window = None
-        self.max_visual_nodes = 600
-        self.max_visual_edges = 1200
+        self.max_visual_nodes = 100
+        self.max_visual_edges = 200
         self.last_visual = None
 
         self._init_palette()
@@ -202,24 +173,201 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         self._refresh_dataset_options()
         self._set_progress("Listo", False)
 
-    # paleta oscura y estilos base
+    # paleta dark mode solicitada
     def _init_palette(self):
         palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor("#0f111a"))
-        palette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor("#161927"))
-        palette.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor("#f5f5f7"))
-        palette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor("#1f2231"))
-        palette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor("#f5f5f7"))
-        palette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor("#6c63ff"))
+        # Fondo oscuro profundo
+        palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor("#121212"))
+        # Base para inputs
+        palette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor("#1e1e1e"))
+        # Texto principal
+        palette.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor("#e0e0e0"))
+        # Botones base
+        palette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor("#4ECDC4"))
+        palette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor("#1e1e1e"))
+        # Acento
+        palette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor("#4ECDC4"))
         self.setPalette(palette)
+        
+        # Estilos CSS modernos dark mode
         self.setStyleSheet(
-            "QWidget {font-family: 'Inter','Segoe UI',sans-serif; font-size: 13px;}"
-            "QPushButton {background-color:#6c63ff;border:none;border-radius:8px;padding:10px 16px;color:white;}"
-            "QPushButton:disabled {background-color:#3c3f56;color:#999cb5;}"
-            "QGroupBox {border:1px solid #2a2d3f;border-radius:10px;margin-top:14px;padding:14px;}"
-            "QLineEdit,QSpinBox,QSlider,QComboBox {background-color:#161927;border:1px solid #2a2d3f;border-radius:8px;color:#f5f5f7;padding:6px;}"
-            "QTextEdit {background-color:#0f111a;border:1px solid #2a2d3f;border-radius:10px;color:#e6e8ef;}"
+            """
+            QWidget {
+                font-family: 'Segoe UI', sans-serif; 
+                font-size: 13px;
+                color: #e0e0e0;
+            }
+            QMainWindow {
+                background-color: #121212;
+            }
+            QPushButton {
+                background-color: #4ECDC4;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 16px;
+                color: #1e1e1e;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #3db9b0;
+            }
+            QPushButton:pressed {
+                background-color: #2a9d8f;
+            }
+            QPushButton:disabled {
+                background-color: #2d2d2d;
+                color: #555555;
+            }
+            /* Botones de accion principal con mismo estilo (flat cyan) */
+            QPushButton#ActionBtn {
+                background-color: #4ECDC4;
+                color: #1e1e1e;
+            }
+            QPushButton#ActionBtn:hover {
+                background-color: #3db9b0;
+            }
+            QPushButton#ActionBtn:disabled {
+                background-color: #2d2d2d;
+                color: #555555;
+            }
+            QGroupBox {
+                border: 1px solid #333333;
+                border-radius: 8px;
+                margin-top: 14px;
+                padding: 16px;
+                background-color: #1e1e1e;
+                font-weight: bold;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                padding: 0 8px;
+                background-color: #121212;
+            }
+            QLineEdit, QSpinBox, QComboBox {
+                background-color: #2d2d2d;
+                border: 1px solid #444444;
+                border-radius: 6px;
+                padding: 8px;
+                color: #ffffff;
+                selection-background-color: #4ECDC4;
+                selection-color: #1e1e1e;
+            }
+            QLineEdit:focus, QSpinBox:focus, QComboBox:focus {
+                border: 1px solid #4ECDC4;
+            }
+            QTextEdit {
+                background-color: #1e1e1e;
+                border: 1px solid #333333;
+                border-radius: 8px;
+                color: #e0e0e0;
+                padding: 8px;
+            }
+            QProgressBar {
+                background-color: #2d2d2d;
+                border: none;
+                border-radius: 6px;
+                text-align: center;
+                color: #e0e0e0;
+            }
+            QProgressBar::chunk {
+                background-color: #4ECDC4;
+                border-radius: 6px;
+            }
+            QLabel {
+                color: #e0e0e0;
+            }
+            QRadioButton {
+                color: #e0e0e0;
+                spacing: 8px;
+            }
+            QRadioButton::indicator {
+                width: 16px;
+                height: 16px;
+                border-radius: 8px;
+                border: 2px solid #444444;
+                background-color: #2d2d2d;
+            }
+            QRadioButton::indicator:checked {
+                background-color: #4ECDC4;
+                border-color: #4ECDC4;
+            }
+            QRadioButton::indicator:hover {
+                border-color: #4ECDC4;
+            }
+            """
         )
+
+    # ... (omitted code) ...
+
+    def _tidy_tree_positions(
+        self,
+        children: defaultdict[int, list[int]],
+        depth: dict[int, int],
+        origin: int,
+    ) -> dict[int, tuple[float, float]]:
+        if origin not in depth:
+            return {}
+        subtree: dict[int, float] = {}
+
+        def _size(node: int) -> float:
+            hijos = children.get(node, [])
+            if not hijos:
+                subtree[node] = 1.0
+                return 1.0
+            total = 0.0
+            for hijo in hijos:
+                total += _size(hijo)
+            subtree[node] = max(total, 1.0)
+            return subtree[node]
+
+        def _assign(node: int, start: float, positions: dict[int, float]):
+            hijos = children.get(node, [])
+            if not hijos:
+                positions[node] = start + 0.5
+                return positions[node]
+            cursor = start
+            # Reducimos la separacion base para que no esten tan lejos
+            separacion = 1.0 + min(0.5, max(0, len(hijos) - 1) * 0.05)
+            for hijo in hijos:
+                _assign(hijo, cursor, positions)
+                cursor += subtree[hijo] * separacion
+            primero = hijos[0]
+            ultimo = hijos[-1]
+            positions[node] = (positions[primero] + positions[ultimo]) / 2.0
+            return positions[node]
+
+        _size(origin)
+        x_positions: dict[int, float] = {}
+        _assign(origin, 0.0, x_positions)
+
+        min_x = min(x_positions.values(), default=0.0)
+        max_depth = max(depth.values(), default=0)
+        
+        # Calculo dinamico de espaciado basado en la densidad del nivel mas ancho
+        level_counts: defaultdict[int, int] = defaultdict(int)
+        for node, level in depth.items():
+            level_counts[level] += 1
+        max_level_width = max(level_counts.values(), default=1)
+        
+        # Formula logaritmica para suavizar el espaciado
+        # Si hay pocos nodos, espaciado generoso (80). Si hay muchos, se compacta un poco pero no demasiado.
+        base_spacing = 80.0
+        dynamic_factor = 150.0 / (1.0 + math.log10(max_level_width))
+        spacing_x = base_spacing + dynamic_factor
+        
+        spacing_y = 90.0 # Altura fija entre niveles, extremadamente compacta
+        
+        layout: dict[int, tuple[float, float]] = {}
+        for node, x_val in x_positions.items():
+            centered_x = (x_val - min_x) * spacing_x
+            layout[node] = (centered_x, depth[node] * spacing_y)
+        min_y = min((pos[1] for pos in layout.values()), default=0.0)
+        if min_y != 0.0:
+            for node, (x, y) in layout.items():
+                layout[node] = (x, y - min_y)
+        return layout
 
     # armado de la interfaz general
     def _build_ui(self):
@@ -231,7 +379,7 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
 
         self._build_top_bar(layout)
         self._build_metrics(layout)
-        self._build_graph_hint(layout)
+
         self._build_log_panel(layout)
 
     # barra superior con seleccion de dataset
@@ -252,6 +400,7 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         browse_btn.clicked.connect(self._browse_dataset)
 
         self.load_btn = QtWidgets.QPushButton("Cargar núcleo C++")
+        self.load_btn.setObjectName("ActionBtn")
         self.load_btn.clicked.connect(self._trigger_load)
 
         grid.addWidget(label, 0, 0)
@@ -291,10 +440,18 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         self.origin_spin = QtWidgets.QSpinBox()
         self.origin_spin.setRange(0, 0)
         self.origin_spin.setPrefix("Origen ")
+        self.origin_spin.valueChanged.connect(lambda v: self._log(f"Origen cambiado a {v}"))
+
+        self.origin_one_btn = QtWidgets.QPushButton("Origen 1")
+        self.origin_one_btn.setFixedWidth(80)
+        self.origin_one_btn.clicked.connect(lambda: self.origin_spin.setValue(1))
+        self.origin_one_btn.clicked.connect(lambda: self._log("Origen restablecido a 1"))
+        self.origin_one_btn.setDisabled(True)
 
         self.depth_spin = QtWidgets.QSpinBox()
         self.depth_spin.setRange(1, 10)
         self.depth_spin.setPrefix("Prof ")
+        self.depth_spin.valueChanged.connect(lambda v: self._log(f"Profundidad cambiada a {v}"))
 
         self.depth_slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
         self.depth_slider.setRange(1, 10)
@@ -302,51 +459,92 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         self.depth_slider.valueChanged.connect(self.depth_spin.setValue)
         self.depth_spin.valueChanged.connect(self.depth_slider.setValue)
 
-        self.random_btn = QtWidgets.QPushButton("Parámetros aleatorios")
+        self.unlimited_check = QtWidgets.QCheckBox("Ilimitada")
+        self.unlimited_check.toggled.connect(lambda checked: self.depth_spin.setDisabled(checked))
+        self.unlimited_check.toggled.connect(lambda checked: self.depth_slider.setDisabled(checked))
+        self.unlimited_check.toggled.connect(lambda checked: self._log(f"Profundidad ilimitada: {'Activada' if checked else 'Desactivada'}", type="WARNING" if checked else "INFO"))
+
+        self.random_btn = QtWidgets.QPushButton("Aleatorio")
         self.random_btn.clicked.connect(self._randomize_params)
+        self.random_btn.setDisabled(True) # Deshabilitado hasta cargar dataset
 
         self.bfs_btn = QtWidgets.QPushButton("Generar subgrafo")
-        self.bfs_btn.clicked.connect(self._trigger_bfs)
+        self.bfs_btn.setObjectName("ActionBtn")
+        self.bfs_btn.clicked.connect(lambda: self._trigger_bfs("render"))
+        self.bfs_btn.setDisabled(True) # Deshabilitado explicitamente al inicio
 
         self.pyvis_btn = QtWidgets.QPushButton("Exportar a PyVis")
-        self.pyvis_btn.clicked.connect(self._export_pyvis)
+        self.pyvis_btn.clicked.connect(lambda: self._trigger_bfs("pyvis"))
         self.pyvis_btn.setDisabled(True)
 
-        self.progress_label = QtWidgets.QLabel("Listo")
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setTextVisible(True)
         self.progress_bar.setMaximumHeight(20)
         self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progress_bar.setStyleSheet(
-            "QProgressBar {background-color:#1b1f2d;border:1px solid #2a2d3f;border-radius:10px;color:#f5f5f7;}"
-            "QProgressBar::chunk {background-color:#6c63ff;border-radius:9px;}"
+            "QProgressBar {background-color:#2d2d2d;border:1px solid #444444;border-radius:10px;color:#e0e0e0;}"
+            "QProgressBar::chunk {background-color:#4ECDC4;border-radius:9px;}"
         )
-        self.progress_bar.setFormat("Listo")
+        self.progress_bar.setFormat("%p%")
         self.progress_bar.hide()
 
+        # Row 0: Origin controls
         bfs_layout.addWidget(QtWidgets.QLabel("Nodo origen"), 0, 0)
         bfs_layout.addWidget(self.origin_spin, 0, 1)
         bfs_layout.addWidget(self.random_btn, 0, 2)
+        bfs_layout.addWidget(self.origin_one_btn, 0, 3)
+
+        # Row 1: Depth controls
         bfs_layout.addWidget(QtWidgets.QLabel("Profundidad"), 1, 0)
         bfs_layout.addWidget(self.depth_spin, 1, 1)
         bfs_layout.addWidget(self.depth_slider, 1, 2)
-        bfs_layout.addWidget(self.bfs_btn, 0, 3, 2, 1)
-        bfs_layout.addWidget(self.progress_label, 2, 0, 1, 2)
-        bfs_layout.addWidget(self.progress_bar, 2, 2, 1, 2)
-        bfs_layout.addWidget(self.pyvis_btn, 3, 0, 1, 4)
+        bfs_layout.addWidget(self.unlimited_check, 1, 3)
+
+        # Row 2: Algorithm
+        algo_layout = QtWidgets.QHBoxLayout()
+        self.radio_bfs = QtWidgets.QRadioButton("BFS")
+        self.radio_dfs = QtWidgets.QRadioButton("DFS")
+        self.radio_bfs.setChecked(True)
+        self.radio_bfs.toggled.connect(lambda c: self._log("Algoritmo cambiado a BFS") if c else None)
+        self.radio_dfs.toggled.connect(lambda c: self._log("Algoritmo cambiado a DFS") if c else None)
+        algo_layout.addWidget(self.radio_bfs)
+        algo_layout.addWidget(self.radio_dfs)
+        bfs_layout.addLayout(algo_layout, 2, 1, 1, 2)
+
+        # Row 3: Visual Settings (Integrated)
+        settings_group = QtWidgets.QGroupBox("Límites Visuales")
+        settings_layout = QtWidgets.QGridLayout(settings_group)
+        
+        self.spin_nodes = QtWidgets.QSpinBox()
+        self.spin_nodes.setRange(10, 5000)
+        self.spin_nodes.setValue(self.max_visual_nodes)
+        self.spin_nodes.setPrefix("Nodos: ")
+        self.spin_nodes.valueChanged.connect(self._update_visual_limits)
+        
+        self.spin_edges = QtWidgets.QSpinBox()
+        self.spin_edges.setRange(10, 10000)
+        self.spin_edges.setValue(self.max_visual_edges)
+        self.spin_edges.setPrefix("Aristas: ")
+        self.spin_edges.valueChanged.connect(self._update_visual_limits)
+        
+        self.check_unlimited_visual = QtWidgets.QCheckBox("Sin límites")
+        self.check_unlimited_visual.toggled.connect(self._toggle_unlimited_visual)
+        
+        settings_layout.addWidget(self.spin_nodes, 0, 0)
+        settings_layout.addWidget(self.spin_edges, 0, 1)
+        settings_layout.addWidget(self.check_unlimited_visual, 0, 2)
+        
+        bfs_layout.addWidget(settings_group, 3, 0, 1, 4)
+
+        # Row 4: Actions (Stacked)
+        bfs_layout.addWidget(self.bfs_btn, 4, 0, 1, 4)
+        bfs_layout.addWidget(self.pyvis_btn, 5, 0, 1, 4)
+        
+        # Row 6: Progress
+        bfs_layout.addWidget(self.progress_bar, 6, 0, 1, 4)
 
         parent_layout.addWidget(bfs_group)
 
-    # panel informativo del subgrafo
-    def _build_graph_hint(self, parent_layout):
-        group = QtWidgets.QGroupBox("Explorador visual")
-        vbox = QtWidgets.QVBoxLayout(group)
-        hint = QtWidgets.QLabel(
-            "Los subgrafos se abren en una ventana dedicada con zoom, paneo y ajuste automático"
-        )
-        hint.setWordWrap(True)
-        vbox.addWidget(hint)
-        parent_layout.addWidget(group)
 
     # panel de bitacora
     def _build_log_panel(self, parent_layout):
@@ -377,63 +575,87 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             selected = dialog.selectedFiles()
             if selected:
                 self.path_edit.setText(selected[0])
-                self._log(f"dataset seleccionado: {selected[0]}")
+                self._log(f"Dataset seleccionado: {selected[0]}")
 
     # cuando cambia elemento rapido
     def _combo_selected(self, index: int):
         path = self.dataset_combo.itemData(index)
         if path:
             self.path_edit.setText(path)
-            self._log(f"dataset elegido: {path}")
+            self._log(f"Dataset elegido: {path}")
 
     # activa carga en hilo
     def _trigger_load(self):
         path = self.path_edit.text().strip()
         if not path:
-            self._log("selecciona un archivo antes de cargar", accent="#f2a365")
+            self._log("Selecciona un archivo antes de cargar", type="WARNING")
             return
         file_path = Path(path)
         if not file_path.exists():
-            self._log("el archivo indicado no existe", accent="#f87171")
+            self._log("El archivo indicado no existe", type="ERROR")
             return
         self._set_busy(True)
-        self._set_progress("Cargando dataset...", True)
+        self._set_progress("Cargando dataset en C++ (Espere)...", True)
         worker = Worker("load", self._load_dataset_task, str(file_path))
         worker.signals.result.connect(self._handle_result)
         worker.signals.error.connect(self._handle_error)
         worker.signals.finished.connect(self._task_finished)
         self.thread_pool.start(worker)
-        self._log(f"cargando dataset: {file_path}")
+        self._log(f"Cargando dataset: {file_path}")
 
-    # activa bfs en hilo
-    def _trigger_bfs(self):
+    # iniciar busqueda (visual o exportacion)
+    def _trigger_bfs(self, target: str = "render"):
         if not self.dataset_loaded:
-            self._log("carga un dataset antes de simular", accent="#f2a365")
+            self._log("Carga un dataset antes de simular", type="WARNING")
             return
         origen = self.origin_spin.value()
-        profundidad = self.depth_spin.value()
+        profundidad = 1000000 if self.unlimited_check.isChecked() else self.depth_spin.value()
+        algo = "dfs" if self.radio_dfs.isChecked() else "bfs"
+        
         self._set_busy(True)
-        self._set_progress("Ejecutando BFS...", True)
-        worker = Worker("bfs", self._bfs_task, origen, profundidad)
+        msg = f"Ejecutando {algo.upper()}..." if target == "render" else f"Generando {algo.upper()} para PyVis..."
+        self._set_progress(msg, True)
+        
+        worker = Worker("search", self._search_task, origen, profundidad, algo, target)
         worker.signals.result.connect(self._handle_result)
         worker.signals.error.connect(self._handle_error)
         worker.signals.finished.connect(self._task_finished)
+        worker.signals.progress.connect(lambda msg: self._log(msg, type="INFO")) # Conectar progreso a logs
         self.thread_pool.start(worker)
-        self.pyvis_btn.setDisabled(True)
-        self._log(f"bfs solicitado desde {origen} con profundidad {profundidad}")
+        self._log(f"{algo.upper()} solicitado desde {origen} (Target: {target})")
+
+    def _update_visual_limits(self):
+        if not self.check_unlimited_visual.isChecked():
+            self.max_visual_nodes = self.spin_nodes.value()
+            self.max_visual_edges = self.spin_edges.value()
+
+    def _toggle_unlimited_visual(self, checked: bool):
+        self.spin_nodes.setDisabled(checked)
+        self.spin_edges.setDisabled(checked)
+        if checked:
+            self.max_visual_nodes = 10000000
+            self.max_visual_edges = 20000000
+        else:
+            self.max_visual_nodes = self.spin_nodes.value()
+            self.max_visual_edges = self.spin_edges.value()
 
     # parametrizacion aleatoria suave
     def _randomize_params(self):
         if not self.dataset_loaded or self.total_nodes == 0:
-            self._log("aun no hay datos cargados", accent="#f2a365")
+            self._log("Aun no hay datos cargados", type="WARNING")
             return
         self.origin_spin.setValue(random.randint(0, max(0, self.total_nodes - 1)))
         self.depth_spin.setValue(random.randint(1, self.depth_slider.maximum()))
-        self._log("parametros aleatorios aplicados", accent="#6ee7b7")
+        self._log("Parametros aleatorios aplicados", type="SUCCESS")
 
-    # trabajo real de carga
-    def _load_dataset_task(self, path: str):
+    # tarea de carga en hilo
+    def _load_dataset_task(self, path: str, progress_callback=None):
+        if progress_callback:
+            progress_callback("Iniciando carga en C++...")
+            
+        # Nota: cargar_archivo lanza RuntimeError si falla, asi que el try/except del worker lo capturara
         self.core.cargar_archivo(path)
+            
         return {
             "path": path,
             "nodes": self.core.total_nodos(),
@@ -443,11 +665,66 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             "critical": self.core.nodo_mayor_grado(),
         }
 
-    # trabajo real de bfs
-    def _bfs_task(self, origen: int, profundidad: int):
-        resultado = self.core.bfs(origen, profundidad)
+    # trabajo real de busqueda (bfs/dfs)
+    def _search_task(self, origen: int, profundidad: int, algo: str, target: str, progress_callback=None):
+        if progress_callback:
+            progress_callback(f"Iniciando {algo.upper()} en C++...")
+            
+        if algo == "dfs":
+            resultado = self.core.dfs(origen, profundidad)
+        else:
+            resultado = self.core.bfs(origen, profundidad)
+            
+        if progress_callback:
+            progress_callback(f"{algo.upper()} completado. Procesando resultados...")
+        
         resultado["origen"] = origen
         resultado["profundidad"] = profundidad
+        resultado["algo"] = algo
+        resultado["target"] = target
+        
+        # Optimizacion: Calcular layout en segundo plano si es para renderizar
+        if target == "render":
+            nodos = resultado["nodos"]
+            aristas = resultado["aristas"]
+            
+            # Aplicar limites visuales aqui para no calcular layout de mas
+            if len(nodos) > self.max_visual_nodes:
+                nodos = nodos[: self.max_visual_nodes]
+                filtro = set(nodos)
+                aristas = [(u, v) for (u, v) in aristas if u in filtro and v in filtro]
+                resultado["limited"] = True
+                resultado["visual_nodes"] = nodos
+                resultado["visual_edges"] = aristas
+            else:
+                resultado["limited"] = False
+                resultado["visual_nodes"] = nodos
+                resultado["visual_edges"] = aristas
+
+            # Construir grafo temporal para layout
+            graph = nx.DiGraph()
+            graph.add_nodes_from(resultado["visual_nodes"])
+            graph.add_edges_from(resultado["visual_edges"])
+            
+            if graph.number_of_nodes() > 0:
+                if progress_callback:
+                    progress_callback("Calculando layout (0%)...")
+                # Calcular layout pesado aqui
+                layout = self._compute_layout(graph, origen)
+                if progress_callback:
+                    progress_callback("Calculando layout (100%)...")
+                resultado["layout"] = layout
+            else:
+                resultado["layout"] = {}
+        
+        # Si el target es PyVis, generamos el HTML aqui mismo en el hilo para reportar progreso
+        elif target == "pyvis":
+             if progress_callback:
+                progress_callback("Generando estructura PyVis (0%)...")
+             self._generate_pyvis_content(resultado, progress_callback)
+             if progress_callback:
+                progress_callback("Generando estructura PyVis (100%)...")
+                
         return resultado
 
     # router de resultados por tipo
@@ -458,23 +735,38 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             self.origin_spin.setRange(0, max(0, self.total_nodes - 1))
             self._update_metrics(data)
             self._set_progress("Dataset cargado", False)
+            self.pyvis_btn.setDisabled(False) # Habilitar exportacion directa
+            self.bfs_btn.setDisabled(False) # Habilitar generacion
+            self.origin_one_btn.setDisabled(False) # Habilitar origen 1
+            self.random_btn.setDisabled(False) # Habilitar random
             self._log(
-                f"dataset cargado | nodos {data['nodes']:,} | aristas {data['edges']:,} | memoria {data['memory']:.2f} MB",
-                accent="#6ee7b7",
+                f"Dataset cargado | Nodos {data['nodes']:,} | Aristas {data['edges']:,} | Memoria {data['memory']:.2f} MB",
+                type="SUCCESS",
             )
-        elif task == "bfs":
-            self._set_progress("BFS completado, renderizando...", True)
-            self._render_graph(data)
-            self._set_progress("Listo", False)
+        elif task == "search":
+            target = data.get("target", "render")
+            if target == "render":
+                self._set_progress("Búsqueda completada, renderizando...", True)
+                self._render_graph(data)
+                self._set_progress("Listo", False)
+            elif target == "pyvis":
+                # El HTML ya se genero en el hilo, solo abrimos el navegador
+                self._set_progress("Abriendo navegador...", True)
+                destino = Path.cwd() / "neuronet_subgraph.html"
+                if destino.exists():
+                    webbrowser.open(destino.as_uri(), new=2)
+                    self._log(f"Subgrafo exportado a {destino}", type="SUCCESS")
+                self._set_progress("Exportado", False)
+            
             self._log(
-                f"bfs finalizado | nodos {len(data['nodos'])} | aristas {len(data['aristas'])} | origen {data['origen']}",
-                accent="#6ee7b7",
+                f"{data.get('algo', 'bfs').upper()} finalizado | Nodos {len(data['nodos'])} | Aristas {len(data['aristas'])}",
+                type="SUCCESS",
             )
 
     # captura errores del backend
     def _handle_error(self, message: str):
         self._set_progress("Error", False)
-        self._log(f"error: {message}", accent="#f87171")
+        self._log(f"Error: {message}", type="ERROR")
 
     # actualizacion de metricas en pantalla
     def _update_metrics(self, data: dict):
@@ -486,32 +778,34 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
 
     # renderizado del subgrafo resultante
     def _render_graph(self, data: dict):
-        nodos = data["nodos"]
-        aristas = data["aristas"]
+        # Usar datos pre-procesados en el hilo
+        nodos = data.get("visual_nodes", [])
+        aristas = data.get("visual_edges", [])
+        layout = data.get("layout", {})
+        
         if not nodos:
-            self._log("no hay nodos que visualizar", accent="#f2a365")
+            self._log("No hay nodos que visualizar", type="WARNING")
             return
-        if len(nodos) > self.max_visual_nodes:
-            nodos = nodos[: self.max_visual_nodes]
-            filtro = set(nodos)
-            aristas = [(u, v) for (u, v) in aristas if u in filtro and v in filtro]
-            aristas = aristas[: self.max_visual_edges]
+            
+        if data.get("limited", False):
             self._log(
-                f"vista limitada a {len(nodos)} nodos y {len(aristas)} aristas para mantener fluidez",
-                accent="#fde047",
+                f"Vista limitada a {len(nodos)} nodos y {len(aristas)} aristas para mantener fluidez",
+                type="WARNING",
             )
-        self._set_progress("Calculando layout del subgrafo...", True)
+            
+        self._set_progress("Dibujando subgrafo interactivo...", True)
+        
+        # Reconstruir grafo ligero solo para dibujo
         graph = nx.DiGraph()
         graph.add_nodes_from(nodos)
         graph.add_edges_from(aristas)
-        if graph.number_of_nodes() == 0:
-            self._log("no fue posible construir el subgrafo", accent="#f87171")
-            return
-        layout = self._compute_layout(graph, data.get("origen", -1))
-        self._set_progress("Dibujando subgrafo interactivo...", True)
+        
         if self.graph_window is None:
             self.graph_window = GraphWindow(self)
+            
+        # Pasar layout pre-calculado
         self.graph_window.render(graph, layout, data.get("origen", -1))
+        
         self.last_visual = {
             "nodes": list(graph.nodes()),
             "edges": list(graph.edges()),
@@ -529,8 +823,9 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             layout = self._radial_layout(graph, origin)
         missing = [node for node in graph.nodes() if node not in layout]
         if missing:
-            repulsion = max(0.15, 1.2 / max(1.0, math.sqrt(graph.number_of_nodes())))
-            fallback = nx.spring_layout(graph, seed=24, k=repulsion, iterations=40, scale=8.0)
+            # Aumentar repulsion para evitar superposicion
+            repulsion = max(0.3, 2.0 / max(1.0, math.sqrt(graph.number_of_nodes())))
+            fallback = nx.spring_layout(graph, seed=24, k=repulsion, iterations=50, scale=10.0)
             for node in missing:
                 layout[node] = fallback[node]
         return layout
@@ -559,10 +854,10 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         if not depth:
             return {}
         node_count = graph.number_of_nodes()
-        if node_count <= 180:
-            layout = self._tidy_tree_positions(children, depth, origin)
-        else:
-            layout = self._layered_force_positions(graph, depth)
+        # SIEMPRE usar tidy tree layout para garantizar estructura de arbol bonita
+        # sin importar el tamano (hasta el limite visual)
+        layout = self._tidy_tree_positions(children, depth, origin)
+        
         missing = [node for node in graph.nodes() if node not in layout]
         if missing:
             layout.update(self._grid_fallback_positions(missing, depth))
@@ -619,7 +914,8 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
                 positions[node] = start + 0.5
                 return positions[node]
             cursor = start
-            separacion = 1.0 + min(1.6, max(0, len(hijos) - 1) * 0.14)
+            # Reducimos la separacion base para que no esten tan lejos
+            separacion = 1.0 + min(0.5, max(0, len(hijos) - 1) * 0.05)
             for hijo in hijos:
                 _assign(hijo, cursor, positions)
                 cursor += subtree[hijo] * separacion
@@ -631,14 +927,24 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         _size(origin)
         x_positions: dict[int, float] = {}
         _assign(origin, 0.0, x_positions)
+
         min_x = min(x_positions.values(), default=0.0)
         max_depth = max(depth.values(), default=0)
+        
+        # Calculo dinamico de espaciado basado en la densidad del nivel mas ancho
         level_counts: defaultdict[int, int] = defaultdict(int)
         for node, level in depth.items():
             level_counts[level] += 1
         max_level_width = max(level_counts.values(), default=1)
-        spacing_x = 185.0 + min(520.0, max(0, max_level_width - 1) * 18.0)
-        spacing_y = 210.0 if max_depth < 6 else 185.0
+        
+        # Formula logaritmica para suavizar el espaciado
+        # Si hay pocos nodos, espaciado generoso (80). Si hay muchos, se compacta un poco pero no demasiado.
+        base_spacing = 80.0
+        dynamic_factor = 150.0 / (1.0 + math.log10(max_level_width))
+        spacing_x = base_spacing + dynamic_factor
+        
+        spacing_y = 140.0 # Altura fija entre niveles, mas compacta que antes
+        
         layout: dict[int, tuple[float, float]] = {}
         for node, x_val in x_positions.items():
             centered_x = (x_val - min_x) * spacing_x
@@ -736,12 +1042,12 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
     # texto bonito para bitacora
     def _export_pyvis(self):
         if not self.last_visual:
-            self._log("no hay subgrafo para exportar", accent="#f2a365")
+            self._log("No hay subgrafo para exportar", type="WARNING")
             return
         try:
             from pyvis.network import Network
         except ImportError:
-            self._log("pyvis no esta instalado en el entorno", accent="#f87171")
+            self._log("Pyvis no esta instalado en el entorno", type="ERROR")
             return
         destino = Path.cwd() / "neuronet_subgraph.html"
         net = Network(height="100vh", width="100%", bgcolor="#0f111a", font_color="#f5f5f7", directed=True)
@@ -762,11 +1068,92 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
             contenido = contenido.replace("</head>", f"{css}\n</head>", 1)
             destino.write_text(contenido)
         webbrowser.open(destino.as_uri(), new=2)
-        self._log(f"subgrafo exportado a {destino}", accent="#6ee7b7")
+        self._log(f"Subgrafo exportado a {destino}", type="SUCCESS")
 
-    def _log(self, message: str, accent: str = "#f5f5f7"):
+    # Generacion de contenido PyVis en hilo (worker)
+    def _generate_pyvis_content(self, data: dict, progress_callback=None):
+        try:
+            from pyvis.network import Network
+        except ImportError:
+            return
+            
+        nodos = data["nodos"]
+        aristas = data["aristas"]
+        origen = data["origen"]
+        
+        destino = Path.cwd() / "neuronet_subgraph.html"
+        net = Network(height="100vh", width="100%", bgcolor="#0f111a", font_color="#f5f5f7", directed=True)
+        
+        unique_nodes = list(set(nodos))
+        total_nodes = len(unique_nodes)
+        
+        # Agregar nodos con progreso
+        for i, node in enumerate(unique_nodes):
+            if progress_callback and i % 1000 == 0:
+                 porcentaje = int((i / total_nodes) * 50) # Primer 50%
+                 progress_callback(f"Generando PyVis: Nodos {porcentaje}%")
+                 
+            color = "#ffbd39" if node == origen else "#6c63ff"
+            net.add_node(int(node), label=str(node), color=color)
+            
+        # Agregar aristas con progreso
+        total_edges = len(aristas)
+        unique_nodes_set = set(unique_nodes)
+        for i, (u, v) in enumerate(aristas):
+            if progress_callback and i % 1000 == 0:
+                 porcentaje = 50 + int((i / total_edges) * 50) # Segundo 50%
+                 progress_callback(f"Generando PyVis: Aristas {porcentaje}%")
+
+            if u in unique_nodes_set and v in unique_nodes_set:
+                net.add_edge(int(u), int(v), color="#8888ff")
+                
+        net.write_html(str(destino), notebook=False)
+        
+        # Inyectar CSS
+        css = """
+<style>
+  html, body { margin: 0; height: 100%; background-color: #0f111a; }
+  #mynetwork { height: 100vh !important; width: 100% !important; }
+</style>
+"""
+        try:
+            contenido = destino.read_text()
+            if "</head>" in contenido:
+                contenido = contenido.replace("</head>", f"{css}\n</head>", 1)
+                destino.write_text(contenido)
+        except Exception:
+            pass
+
+    # exportacion directa (legacy/wrapper si se necesita desde main thread)
+    def _export_pyvis_direct(self, data: dict):
+        # Esta funcion ahora solo se usa si se llama desde main thread, 
+        # pero la logica principal se movio a _generate_pyvis_content
+        self._generate_pyvis_content(data)
+        destino = Path.cwd() / "neuronet_subgraph.html"
+        webbrowser.open(destino.as_uri(), new=2)
+        self._log(f"Subgrafo exportado a {destino}", type="SUCCESS")
+
+    def _log(self, message: str, type: str = "INFO", accent: str = None):
         timestamp = datetime.now().strftime("%H:%M:%S")
-        formatted = f"<span style='color:#7dd3fc'>[{timestamp}]</span> <span style='color:{accent}'>{message}</span>"
+        
+        # Definir colores segun el tipo si no se especifica acento (Paleta Vibrante)
+        if accent is None:
+            if type == "ERROR":
+                accent = "#E74C3C" # Red
+            elif type == "WARNING":
+                accent = "#F1C40F" # Yellow
+            elif type == "SUCCESS":
+                accent = "#2ECC71" # Green
+            else:
+                accent = "#3498DB" # Blue
+        
+        # Formatear mensaje
+        # Timestamp en gris suave, Tipo en negrita con color, Mensaje en blanco
+        formatted = (
+            f"<span style='color:#888888'>[{timestamp}]</span> "
+            f"<strong style='color:{accent}'>[{type}]</strong> "
+            f"<span style='color:#e0e0e0'>{message}</span>"
+        )
         self.log_view.append(formatted)
         self.log_view.verticalScrollBar().setValue(self.log_view.verticalScrollBar().maximum())
 
@@ -775,14 +1162,14 @@ class NeuroNetWindow(QtWidgets.QMainWindow):
         self.load_btn.setDisabled(busy)
         self.bfs_btn.setDisabled(busy)
         self.random_btn.setDisabled(busy)
-        self.pyvis_btn.setDisabled(busy or not self.last_visual)
+        self.pyvis_btn.setDisabled(busy) # Ahora pyvis tambien es una accion asincrona
+
 
     # estado de progreso visual
-    def _set_progress(self, text: str, active: bool):
-        self.progress_label.setText(text)
-        if active:
-            self.progress_bar.setRange(0, 0)
-            self.progress_bar.setFormat(text)
+    def _set_progress(self, msg: str, busy: bool):
+        if busy:
+            self.progress_bar.setFormat(msg)
+            self.progress_bar.setRange(0, 0) # Indeterminate
             self.progress_bar.show()
         else:
             self.progress_bar.setRange(0, 1)

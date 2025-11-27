@@ -23,6 +23,7 @@ public:
     virtual int obtenerNodoMayorGrado() const = 0;
     virtual std::vector<int> obtenerVecinos(int nodo) const = 0;
     virtual BFSResultado bfsConDetalle(int origen, size_t profundidadMaxima) const = 0;
+    virtual BFSResultado dfsConDetalle(int origen, size_t profundidadMaxima) const = 0;
     virtual double estimarMemoriaMB() const = 0;
     virtual double obtenerUltimoTiempoCargaMs() const = 0;
 };
@@ -37,6 +38,7 @@ public:
     int obtenerNodoMayorGrado() const override;
     std::vector<int> obtenerVecinos(int nodo) const override;
     BFSResultado bfsConDetalle(int origen, size_t profundidadMaxima) const override;
+    BFSResultado dfsConDetalle(int origen, size_t profundidadMaxima) const override;
     double estimarMemoriaMB() const override;
     double obtenerUltimoTiempoCargaMs() const override;
 
